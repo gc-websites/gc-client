@@ -54,7 +54,7 @@ const Product = () => {
 
   useEffect(() => {
     if (productData && clickId) {
-      setUrlWithSubtag(productData?.link + `&subtag=${clickId}`);
+      setUrlWithSubtag(productData?.link + `&ascsubtag=${clickId}`);
       console.log(urlWithSubtag);
     } else {
       setUrlWithSubtag(productData?.link);
