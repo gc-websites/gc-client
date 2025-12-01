@@ -3,26 +3,29 @@ import React, { useState } from 'react';
 const ProductGeneration = () => {
   const [prompt, setPrompt] = useState('');
   const [link, setLink] = useState('');
+  const [country, setCountry] = useState('USA');
   const [postId, setPostId] = useState('');
   const [status, setStatus] = useState('');
 
   const handleChangePrompt = value => setPrompt(value);
   const handleChangeLink = value => setLink(value);
+  const handleChangeCountry = value => setCountry(value);
 
   const handleSubmit = async e => {
     e.preventDefault();
     setPostId('');
     setStatus('Creating link...');
-    const res = await fetch('https://dev.nice-advice.info/generate-product', {
+    const res = await fetch('http://localhost:4000/generate-product', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: prompt, link: link }),
+      body: JSON.stringify({ query: prompt, link: link, country: country }),
     });
     const data = await res.json();
     setPostId(data.id);
     setStatus('Link created successfully.');
     setLink('');
     setPrompt('');
+    setCountry('USA');
   };
 
   return (
@@ -44,12 +47,20 @@ const ProductGeneration = () => {
         <input
           type="text"
           name="link"
-          placeholder="Link"
+          placeholder="Amazon link"
           minLength={3}
           value={link}
           onChange={event => handleChangeLink(event.target.value)}
           className="p-2 border rounded w-[90vw] md:w-[50vw]"
         />
+        <select
+          value={country}
+          onChange={event => handleChangeCountry(event.target.value)}
+          className="p-2 border rounded w-[90vw] md:w-[50vw]"
+        >
+          <option value="USA">USA</option>
+          <option value="Canada">Canada</option>
+        </select>
         <button className="w-[50vw] md:w-[30vw] bg-green-600 rounded p-2">
           GENERATE
         </button>
