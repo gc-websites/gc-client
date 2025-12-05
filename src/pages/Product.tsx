@@ -29,7 +29,7 @@ const Product = () => {
   }, []);
 
   useEffect(() => {
-    if (fbclid && id && productData.tag) {
+    if (fbclid && id && productData.tag && fbclid !== 'fbclid') {
       const send = async () => {
         try {
           const res = await fetch(`https://dev.nice-advice.info/fbclid`, {
