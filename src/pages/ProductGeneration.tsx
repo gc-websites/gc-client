@@ -42,7 +42,7 @@ const ProductGeneration = () => {
           minLength={3}
           value={prompt}
           onChange={event => handleChangePrompt(event.target.value)}
-          className="p-2 border rounded w-[90vw] md:w-[50vw]"
+          className="p-2 border rounded w-[90vw] md:w-[50vw] bg-gray-500 dark:bg-gray-600"
         />
         <input
           type="text"
@@ -51,12 +51,12 @@ const ProductGeneration = () => {
           minLength={3}
           value={link}
           onChange={event => handleChangeLink(event.target.value)}
-          className="p-2 border rounded w-[90vw] md:w-[50vw]"
+          className="p-2 border rounded w-[90vw] md:w-[50vw] bg-gray-500 dark:bg-gray-600"
         />
         <select
           value={country}
           onChange={event => handleChangeCountry(event.target.value)}
-          className="p-2 border rounded w-[90vw] md:w-[50vw]"
+          className="p-2 border rounded w-[90vw] md:w-[50vw] bg-gray-500 dark:bg-gray-600"
         >
           <option value="USA">USA</option>
           <option value="Canada">Canada</option>
