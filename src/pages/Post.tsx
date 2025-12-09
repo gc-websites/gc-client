@@ -86,6 +86,11 @@ const Post = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleSubmit = event => {
+    event.preventDefault();
+    setSubmitEmail(true);
+  };
+
   useEffect(() => {
     socket.on('updateAllActiveUsers', data => {
       setActiveUsers(data);
@@ -265,6 +270,7 @@ const Post = () => {
                 </div>
               )}
               <form
+                onSubmit={handleSubmit}
                 className={`fixed inset-0 flex items-center justify-center bg-black/50 z-50 
                   transition-opacity duration-300
                   ${emailModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -295,8 +301,7 @@ const Post = () => {
                     </button>
 
                     <button
-                      type="button"
-                      onClick={() => setSubmitEmail(true)}
+                      type="submit"
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       Send
