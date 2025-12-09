@@ -69,24 +69,21 @@ const Post = () => {
   }, [submitEmail]);
 
   useEffect(() => {
-    const checkCookie = () => {
+    // Если cookie уже стоит — активируем сразу
+    if (document.cookie.includes('cookieconsent_status=allow')) {
+      setHasConsent(true);
+      return;
+    }
+
+    // Пуллинг каждые 300 ms — надёжно для мобильных браузеров
+    const interval = setInterval(() => {
       if (document.cookie.includes('cookieconsent_status=allow')) {
         setHasConsent(true);
+        clearInterval(interval); // прекращаем наблюдение
       }
-    };
+    }, 300);
 
-    // Проверяем при загрузке
-    checkCookie();
-
-    // Следим за изменениями в document.cookie
-    const observer = new MutationObserver(checkCookie);
-
-    observer.observe(document, {
-      subtree: true,
-      childList: true,
-    });
-
-    return () => observer.disconnect();
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
