@@ -45,7 +45,7 @@ const Post = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email,
-        source: 'nice-advice',
+        source: 'nice-advice.info',
       }),
     })
       .then(res => {
@@ -277,10 +277,10 @@ const Post = () => {
               >
                 <div
                   className={`bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-sm 
-                    transition-all duration-300 transform
+                    transition-all duration-300 transform dark:bg-[#2E2E2E]
                     ${emailModalOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                 >
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center dark:text-white">
                     Unlock article
                   </h3>
 
