@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 
 const Product = () => {
   const params = new URLSearchParams(window.location.search);
@@ -7,6 +8,17 @@ const Product = () => {
   const pathname = url.pathname;
   const id = pathname.split('/').pop();
   const [productData, setProductData] = useState({});
+
+  useEffect(() => {
+    const fbp = Cookies.get('_fbp');
+    const fbc = Cookies.get('_fbc');
+
+    console.log('META COOKIES:', {
+      fbp,
+      fbc,
+      all: document.cookie,
+    });
+  }, []);
 
   useEffect(() => {
     try {
