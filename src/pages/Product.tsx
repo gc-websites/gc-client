@@ -2,22 +2,20 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 
 const Product = () => {
-  const params = new URLSearchParams(window.location.search);
-  const fbclid = params.get('fbclid');
+  // const params = new URLSearchParams(window.location.search);
+  // const fbclid = params.get('fbclid');
   const url = new URL(window.location.href);
   const pathname = url.pathname;
   const id = pathname.split('/').pop();
   const [productData, setProductData] = useState({});
+  const [trackingId, setTrackingId] = useState('');
+  const [trackingDocId, setTrackingDocId] = useState('');
+  const [fbp, setFbp] = useState('');
+  const [fbc, setFbc] = useState('');
 
   useEffect(() => {
-    const fbp = Cookies.get('_fbp');
-    const fbc = Cookies.get('_fbc');
-
-    console.log('META COOKIES:', {
-      fbp,
-      fbc,
-      all: document.cookie,
-    });
+    setFbp(Cookies.get('_fbp'));
+    setFbc(Cookies.get('_fbc'));
   }, []);
 
   useEffect(() => {
@@ -41,33 +39,81 @@ const Product = () => {
   }, []);
 
   useEffect(() => {
-    if (fbclid && id && productData.tag && fbclid !== 'fbclid') {
-      const send = async () => {
-        try {
-          const res = await fetch(`https://dev.nice-advice.info/fbclid`, {
-            headers: { 'Content-Type': 'application/json' },
-            method: 'POST',
-            body: JSON.stringify({
-              fbclid,
-              productId: id,
-              tag: productData.tag,
-            }),
-          });
-
-          if (!res.ok) {
-            throw new Error('Failed to send fbclid');
-          }
-
-          const data = await res.json(); // ← ЖДЁМ
-          console.log(data);
-        } catch (err) {
-          console.error('❌ Error:', err);
-        }
-      };
-
-      send();
+    if (productData.country) {
+      fetch('https://dev.nice-advice.info/get-trackingId', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ country: productData.country }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          setTrackingId(data.name);
+          setTrackingDocId(data.documentId);
+        });
     }
-  }, [productData.tag]);
+  }, [productData]);
+
+  const handleCtaClick = async () => {
+    if (fbc && fbp && id && trackingId) {
+      fetch('https://dev.nice-advice.info/lead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: id,
+          fbc: fbc,
+          fbp: fbp,
+          trackingId: trackingId,
+          trackingDocId: trackingDocId,
+          country: productData.country,
+        }),
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('Request failed');
+          }
+          return res.json();
+        })
+        .then(response => {
+          console.log(response);
+        })
+        .catch(err => {
+          console.error('❌ Error:', err);
+        });
+    }
+  };
+
+  // useEffect(() => {
+  //   if (fbclid && id && productData.tag && fbclid !== 'fbclid') {
+  //     const send = async () => {
+  //       try {
+  //         const res = await fetch(`https://dev.nice-advice.info/fbclid`, {
+  //           headers: { 'Content-Type': 'application/json' },
+  //           method: 'POST',
+  //           body: JSON.stringify({
+  //             fbclid,
+  //             productId: id,
+  //             tag: productData.tag,
+  //           }),
+  //         });
+
+  //         if (!res.ok) {
+  //           throw new Error('Failed to send fbclid');
+  //         }
+
+  //         const data = await res.json(); // ← ЖДЁМ
+  //         console.log(data);
+  //       } catch (err) {
+  //         console.error('❌ Error:', err);
+  //       }
+  //     };
+
+  //     send();
+  //   }
+  // }, [productData.tag]);
 
   // useEffect(() => {
   //   if (fbclid) {
@@ -107,7 +153,10 @@ const Product = () => {
       <img
         id="cta-image"
         src={productData?.image?.url}
-        onClick={() => window.open(productData?.link, '_blank')}
+        onClick={() => {
+          handleCtaClick();
+          window.open(`${productData?.link}&tag=${trackingId}`, '_blank');
+        }}
         className="w-[90vw] md:w-[40vw] rounded-xl cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl"
       />
       <h1 className="text-2xl md:text-3xl text-center font-bold w-[90%]">
@@ -121,7 +170,8 @@ const Product = () => {
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield3}</p>
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield4}</p>
       <a
-        href={productData?.link}
+        href={`${productData?.link}&tag=${trackingId}`}
+        onClick={() => handleCtaClick()}
         target="_blank"
         rel="noopener noreferrer"
         className="w-[90vw] md:w-[40vw] p-5 m-5 rounded bg-[rgb(3,145,133)] text-2xl font-bold relative bg-[#eaa31e] border border-black rounded-lg py-[15px] px-[20px] mb-[10px] flex justify-center items-center cursor-pointer transition-colors duration-300 font-bold overflow-hidden text-[17px] hover:bg-[#c47f00]
