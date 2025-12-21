@@ -155,7 +155,7 @@ const Product = () => {
         src={productData?.image?.url}
         onClick={() => {
           handleCtaClick();
-          window.open(`${productData?.link}&tag=${trackingId}`, '_blank');
+          window.open(`${productData?.link}&tag=${trackingId}-20`, '_blank');
         }}
         className="w-[90vw] md:w-[40vw] rounded-xl cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl"
       />
@@ -170,7 +170,7 @@ const Product = () => {
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield3}</p>
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield4}</p>
       <a
-        href={`${productData?.link}&tag=${trackingId}`}
+        href={`${productData?.link}&tag=${trackingId}-20`}
         onClick={() => handleCtaClick()}
         target="_blank"
         rel="noopener noreferrer"
