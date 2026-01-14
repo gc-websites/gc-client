@@ -32,6 +32,7 @@ const Product = () => {
         })
         .then(data => {
           setProductData(data.data);
+          console.log(productData);
         });
     } catch (err) {
       console.error('❌ Error:', err);
@@ -40,6 +41,7 @@ const Product = () => {
 
   useEffect(() => {
     if (productData.country) {
+      console.log('prcountry+');
       fetch('https://dev.nice-advice.info/get-trackingId', {
         method: 'POST',
         headers: {
@@ -50,6 +52,7 @@ const Product = () => {
         .then(res => res.json())
         .then(data => {
           setTrackingId(data.name);
+          console.log(trackingId);
           setTrackingDocId(data.documentId);
         });
     }
