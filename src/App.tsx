@@ -18,6 +18,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Generation = lazy(() => import('./pages/Generation'));
 const Product = lazy(() => import('./pages/Product'));
 const ProductGeneration = lazy(() => import('./pages/ProductGeneration'));
+const Multiproduct = lazy(() => import('./pages/Multiproduct'));
 
 const App = () => {
   const [categories, setCategories] = useState([]);
@@ -89,6 +90,7 @@ const App = () => {
           />
           <Route path="*" element={<Page404 />} />
           <Route path="/product/:productId" element={<Product />} />
+          <Route path="/multiproduct/:id" element={<Multiproduct />} />
           <Route
             path="/generation/product"
             element={

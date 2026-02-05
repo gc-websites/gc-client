@@ -26,3 +26,13 @@ body::-webkit-scrollbar {
 body::-webkit-scrollbar-thumb {
   background-color: #242424;
 }
+
+@keyframes pulseCTA {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+.animate-pulseCTA {
+  animation: pulseCTA 2s infinite;
+}
+
