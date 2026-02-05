@@ -28,11 +28,15 @@ body::-webkit-scrollbar-thumb {
 }
 
 @keyframes pulseCTA {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
 }
 
 .animate-pulseCTA {
   animation: pulseCTA 2s infinite;
 }
-

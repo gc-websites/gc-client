@@ -12,13 +12,54 @@ const MultiProduct = () => {
   const [fbc, setFbc] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(600);
 
-  /* ========== COOKIES ========== */
+  /* ================= UTILS ================= */
+
+  const isTelegram = () => /Telegram/i.test(navigator.userAgent);
+
+  const normalizeAmazonUrl = url => {
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `https://${url}`;
+  };
+
+  const openAmazon = (rawUrl, productItemId) => {
+    const baseUrl = normalizeAmazonUrl(rawUrl);
+    const finalUrl = `${baseUrl}&tag=${trackingId}-20`;
+
+    // LEAD
+    if (fbc && fbp && trackingId) {
+      fetch('https://dev.nice-advice.info/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          multiproductId: id,
+          productItemId,
+          fbc,
+          fbp,
+          trackingId,
+          trackingDocId,
+          country: pageData.country,
+        }),
+      }).catch(console.error);
+    }
+
+    // TELEGRAM FIX
+    if (isTelegram()) {
+      window.location.href = `https://t.me/share/url?url=${encodeURIComponent(finalUrl)}`;
+    } else {
+      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  /* ================= COOKIES ================= */
+
   useEffect(() => {
     setFbp(Cookies.get('_fbp'));
     setFbc(Cookies.get('_fbc'));
   }, []);
 
-  /* ========== FETCH ========== */
+  /* ================= FETCH ================= */
+
   useEffect(() => {
     fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
       .then(res => res.json())
@@ -26,7 +67,8 @@ const MultiProduct = () => {
       .catch(console.error);
   }, [id]);
 
-  /* ========== TRACKING ========== */
+  /* ================= TRACKING ================= */
+
   useEffect(() => {
     if (!pageData?.country) return;
 
@@ -42,7 +84,8 @@ const MultiProduct = () => {
       });
   }, [pageData]);
 
-  /* ========== COUNTDOWN (SOFT FOMO) ========== */
+  /* ================= COUNTDOWN ================= */
+
   useEffect(() => {
     const interval = setInterval(() => {
       setSecondsLeft(prev => (prev > 0 ? prev - 1 : 0));
@@ -56,29 +99,10 @@ const MultiProduct = () => {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  /* ========== LEAD ========== */
-  const handleCtaClick = productItemId => {
-    if (!fbc || !fbp || !trackingId) return;
-
-    fetch('https://dev.nice-advice.info/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        multiproductId: id,
-        productItemId,
-        fbc,
-        fbp,
-        trackingId,
-        trackingDocId,
-        country: pageData.country,
-      }),
-    });
-  };
-
   if (!pageData) return null;
 
   return (
-    <div className="bg-[#f5f6f7] min-h-screen pb-28">
+    <div className="bg-[#f5f6f7] min-h-screen pb-32">
       {/* ================= HERO ================= */}
       <section className="px-4 pt-10 pb-12 text-center max-w-3xl mx-auto">
         <span className="inline-block mb-3 px-4 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">
@@ -103,16 +127,7 @@ const MultiProduct = () => {
         {pageData.product.map((item, index) => (
           <div
             key={item.id}
-            className="
-              w-full max-w-[560px]
-              bg-white
-              rounded-2xl
-              shadow-lg
-              hover:shadow-2xl
-              transition-all
-              duration-300
-              overflow-hidden
-            "
+            className="w-full max-w-[560px] bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden"
           >
             {/* IMAGE */}
             <div className="relative group">
@@ -126,18 +141,15 @@ const MultiProduct = () => {
                 src={item.image?.url}
                 alt={item.title}
                 className="w-full cursor-pointer transition-transform duration-500 group-hover:scale-105"
-                onClick={() => {
-                  handleCtaClick(item.id);
-                  window.open(`${item.link}&tag=${trackingId}-20`, '_blank');
-                }}
+                onClick={() => openAmazon(item.link, item.id)}
               />
             </div>
 
             {/* CONTENT */}
-            <div className="p-6 space-y-3">
+            <div className="p-6 space-y-4">
               <h2 className="text-2xl font-bold text-center">{item.title}</h2>
 
-              <div className="flex justify-center gap-1 text-yellow-400">
+              <div className="flex justify-center text-yellow-400">
                 ⭐⭐⭐⭐⭐
               </div>
 
@@ -157,20 +169,16 @@ const MultiProduct = () => {
               </div>
 
               {/* CTA */}
-              <a
-                href={`${item.link}&tag=${trackingId}-20`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => handleCtaClick(item.id)}
+              <button
+                onClick={() => openAmazon(item.link, item.id)}
                 className="
-                  mt-4
-                  w-full
+                  mt-4 w-full
                   bg-[rgb(3,145,133)]
                   hover:bg-[rgb(2,120,110)]
                   text-white
                   font-extrabold
                   text-lg
-                  py-[16px]
+                  py-4
                   rounded-xl
                   border border-black
                   flex justify-center items-center
@@ -188,38 +196,32 @@ const MultiProduct = () => {
                 "
               >
                 VIEW ON AMAZON →
-              </a>
+              </button>
             </div>
           </div>
         ))}
       </section>
 
       {/* ================= STICKY CTA (MOBILE) ================= */}
-      <div
-        className="
-        fixed bottom-0 left-0 right-0 z-50
-        bg-white border-t shadow-lg
-        md:hidden
-      "
-      >
-        <a
-          href={`${pageData.product?.[0]?.link}&tag=${trackingId}-20`}
-          onClick={() => handleCtaClick(pageData.product?.[0]?.id)}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-lg md:hidden">
+        <button
+          onClick={() =>
+            openAmazon(pageData.product?.[0]?.link, pageData.product?.[0]?.id)
+          }
           className="
-            m-3
+            m-3 w-[calc(100%-1.5rem)]
             bg-[rgb(3,145,133)]
             hover:bg-[rgb(2,120,110)]
             text-white
             font-extrabold
             py-4
             rounded-xl
-            flex justify-center items-center
             border border-black
             animate-pulseCTA
           "
         >
           🔥 View Best Deal on Amazon
-        </a>
+        </button>
       </div>
 
       {/* ================= DISCLAIMER ================= */}
