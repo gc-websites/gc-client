@@ -162,12 +162,9 @@ const Product = () => {
         }}
         className="w-[90vw] md:w-[40vw] rounded-xl cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl"
       />
-      <h1 className="text-2xl md:text-3xl text-center font-bold w-[90%]">
+      <h1 className="text-2xl md:text-3xl text-center font-bold w-[90%] mb-[2rem] mt-[1rem]">
         {productData?.title}
       </h1>
-      <h2 className="text-xl text-center font-bold text-red-400">
-        Up to 50% OFF
-      </h2>
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield1}</p>
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield2}</p>
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield3}</p>
