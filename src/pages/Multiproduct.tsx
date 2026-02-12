@@ -101,10 +101,6 @@ const MultiProduct = () => {
         <p className="text-gray-600 text-lg">
           Editor-tested • Best value • Limited-time deals
         </p>
-
-        <div className="mt-4 text-red-500 font-bold text-sm">
-          ⏳ Deals refresh in {formatTime()}
-        </div>
       </section>
 
       {/* ================= PRODUCTS ================= */}
@@ -142,10 +138,6 @@ const MultiProduct = () => {
 
                 <div className="flex justify-center gap-1 text-yellow-400">
                   ⭐⭐⭐⭐⭐
-                </div>
-
-                <div className="text-center text-red-500 font-extrabold">
-                  Up to 50% OFF — Today Only
                 </div>
 
                 <div className="text-gray-700 space-y-1">
