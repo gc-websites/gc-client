@@ -29,7 +29,7 @@ const MultiProduct = () => {
 
   /* ========== FETCH ========== */
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
+    fetch(`http://localhost:4000/get-multiproduct/${id}`)
       .then(res => res.json())
       .then(res => setPageData(res.data))
       .catch(console.error);
@@ -39,7 +39,7 @@ const MultiProduct = () => {
   useEffect(() => {
     if (!pageData?.country) return;
 
-    fetch('https://dev.nice-advice.info/get-trackingId', {
+    fetch('http://localhost:4000/get-trackingId', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ country: pageData.country }),
@@ -70,7 +70,7 @@ const MultiProduct = () => {
     if (!trackingId) return trackingId;
 
     try {
-      const res = await fetch('https://dev.nice-advice.info/lead', {
+      const res = await fetch('http://localhost:4000/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

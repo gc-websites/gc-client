@@ -27,7 +27,7 @@ const Generation = () => {
   //   if (query.length < 3) return;
   //   setStatus('Creating post...');
   //   const articleRes = await fetch(
-  //     'https://dev.nice-advice.info/generate-post',
+  //     'http://localhost:4000/generate-post',
   //     {
   //       method: 'POST',
   //       headers: { 'Content-Type': 'application/json' },
@@ -59,7 +59,7 @@ const Generation = () => {
   //   const multiQueryFiltered = multiQuery.filter(str => str.trim() !== '');
   //   setMultiStatus('Creating posts...');
   //   const articlesRes = await fetch(
-  //     'https://dev.nice-advice.info/generate-posts',
+  //     'http://localhost:4000/generate-posts',
   //     {
   //       method: 'POST',
   //       headers: { 'Content-Type': 'application/json' },
