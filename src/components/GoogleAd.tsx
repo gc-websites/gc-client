@@ -16,19 +16,22 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
   fullWidthResponsive,
 }) => {
   useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error('AdSense error:', e);
-    }
-  }, [adSlot]); // Re-run if adSlot changes, but usually won't
+    const timer = setTimeout(() => {
+      try {
+        // @ts-ignore
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.error('AdSense error:', e);
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [adSlot]);
 
   return (
-    <div className={`ad-container ${className}`}>
+    <div key={adSlot} className={`ad-container ${className}`}>
       <ins
         className="adsbygoogle"
-        style={style}
+        style={{ ...style, maxWidth: '100%' }}
         data-ad-client="ca-pub-1088654265590051"
         data-ad-slot={adSlot}
         {...(adFormat ? { 'data-ad-format': adFormat } : {})}
