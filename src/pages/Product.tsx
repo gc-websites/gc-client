@@ -175,7 +175,7 @@ const Product = () => {
   return (
     <div className="flex flex-col md:flex-row justify-center items-start p-5 gap-4 md:gap-8 max-w-[1440px] mx-auto">
       {/* Left Ad Block (Desktop Only) */}
-      <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 border-2 border-[rgb(3,145,133)] rounded-lg p-2 min-h-[600px]">
+      <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 min-h-[600px]">
         <GoogleAd adSlot="5670764383" />
       </div>
 
@@ -238,7 +238,7 @@ const Product = () => {
       </div>
 
       {/* Right Ad Block (Desktop Only) */}
-      <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 border-2 border-[rgb(3,145,133)] rounded-lg p-2 min-h-[600px]">
+      <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 min-h-[600px]">
         <GoogleAd adSlot="5670764383" />
       </div>
     </div>
