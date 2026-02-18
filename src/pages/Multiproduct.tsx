@@ -23,8 +23,28 @@ const MultiProduct = () => {
 
   /* ========== COOKIES ========== */
   useEffect(() => {
-    setFbp(Cookies.get('_fbp'));
-    setFbc(Cookies.get('_fbc'));
+    const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get('fbclid');
+
+    let currentFbp = Cookies.get('_fbp');
+    let currentFbc = Cookies.get('_fbc');
+
+    // Restoration logic for FBC
+    if (!currentFbc || currentFbc.includes('fbclid')) {
+      if (fbclid && fbclid !== 'fbclid') {
+        currentFbc = `fb.1.${Date.now()}.${fbclid}`;
+      }
+    }
+
+    // Restoration logic for FBP
+    if (!currentFbp) {
+      const timestamp = Date.now();
+      const randomPart = Math.floor(Math.random() * 2147483647);
+      currentFbp = `fb.1.${timestamp}.${randomPart}`;
+    }
+
+    setFbp(currentFbp || '');
+    setFbc(currentFbc || '');
   }, []);
 
   /* ========== FETCH ========== */
@@ -81,6 +101,7 @@ const MultiProduct = () => {
           trackingId,
           trackingDocId,
           country: pageData.country,
+          external_id: trackingId, // Passing trackingId as external_id
         }),
       });
 
