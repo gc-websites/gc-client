@@ -22,7 +22,7 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
     } catch (e) {
       console.error('AdSense error:', e);
     }
-  }, []);
+  }, [adSlot]); // Re-run if adSlot changes, but usually won't
 
   return (
     <div className={`ad-container ${className}`}>

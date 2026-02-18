@@ -181,17 +181,12 @@ const Product = () => {
 
       <div className="flex flex-col justify-center items-center w-full md:w-[50vw] lg:w-[40vw]">
         {/* Mobile Ad Block (Mobile Only) */}
-        <div className="block md:hidden w-[90%] max-w-[420px] mb-8 border-b border-gray-100 pb-4 flex justify-center overflow-hidden mx-auto">
+        <div className="block md:hidden w-[90%] mb-10 border-b border-gray-100 pb-6 mx-auto">
           <GoogleAd
             adSlot="3102119406"
-            adFormat="auto"
+            adFormat="horizontal"
             fullWidthResponsive="true"
-            style={{
-              display: 'block',
-              width: '100%',
-              minHeight: '100px',
-              maxHeight: '150px',
-            }}
+            style={{ display: 'block', width: '100%' }}
           />
         </div>
 
