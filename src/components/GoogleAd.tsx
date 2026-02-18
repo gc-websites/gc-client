@@ -4,12 +4,16 @@ interface GoogleAdProps {
   adSlot: string;
   className?: string;
   style?: React.CSSProperties;
+  adFormat?: string;
+  fullWidthResponsive?: string;
 }
 
 const GoogleAd: React.FC<GoogleAdProps> = ({
   adSlot,
   className = '',
   style = { display: 'block' },
+  adFormat = 'auto',
+  fullWidthResponsive = 'true',
 }) => {
   useEffect(() => {
     try {
@@ -27,8 +31,8 @@ const GoogleAd: React.FC<GoogleAdProps> = ({
         style={style}
         data-ad-client="ca-pub-1088654265590051"
         data-ad-slot={adSlot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
+        data-ad-format={adFormat}
+        data-full-width-responsive={fullWidthResponsive}
       />
     </div>
   );
