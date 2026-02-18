@@ -186,7 +186,7 @@ const Product = () => {
             adSlot="6594641858"
             style={{
               display: 'inline-block',
-              width: '700px',
+              width: '600px',
               height: '90px',
             }}
           />
