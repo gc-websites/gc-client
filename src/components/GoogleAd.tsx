@@ -3,9 +3,14 @@ import React, { useEffect } from 'react';
 interface GoogleAdProps {
   adSlot: string;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const GoogleAd: React.FC<GoogleAdProps> = ({ adSlot, className = '' }) => {
+const GoogleAd: React.FC<GoogleAdProps> = ({
+  adSlot,
+  className = '',
+  style = { display: 'block' },
+}) => {
   useEffect(() => {
     try {
       // @ts-ignore
@@ -19,7 +24,7 @@ const GoogleAd: React.FC<GoogleAdProps> = ({ adSlot, className = '' }) => {
     <div className={`ad-container ${className}`}>
       <ins
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={style}
         data-ad-client="ca-pub-1088654265590051"
         data-ad-slot={adSlot}
         data-ad-format="auto"
