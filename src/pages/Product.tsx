@@ -184,9 +184,9 @@ const Product = () => {
         <div className="block md:hidden w-[90%] mb-10 border-b border-gray-100 pb-6 mx-auto">
           <GoogleAd
             adSlot="3102119406"
-            adFormat="horizontal"
+            adFormat="auto"
             fullWidthResponsive="true"
-            style={{ display: 'block', width: '100%' }}
+            style={{ display: 'block' }}
           />
         </div>
 
