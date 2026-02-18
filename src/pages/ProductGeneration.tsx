@@ -15,7 +15,7 @@ const ProductGeneration = () => {
     e.preventDefault();
     setPostId('');
     setStatus('Creating link...');
-    const res = await fetch('https://dev.nice-advice.info/generate-product', {
+    const res = await fetch('http://localhost:4000/generate-product', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: prompt, link: link, country: country }),

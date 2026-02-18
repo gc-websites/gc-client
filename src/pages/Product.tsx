@@ -20,7 +20,7 @@ const Product = () => {
 
   useEffect(() => {
     try {
-      fetch(`https://dev.nice-advice.info/get-product/${id}`, {
+      fetch(`http://localhost:4000/get-product/${id}`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'GET',
       })
@@ -42,7 +42,7 @@ const Product = () => {
   useEffect(() => {
     if (productData.country) {
       console.log('prcountry+');
-      fetch('https://dev.nice-advice.info/get-trackingId', {
+      fetch('http://localhost:4000/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,41 +59,50 @@ const Product = () => {
   }, [productData]);
 
   const handleCtaClick = async () => {
-    if (fbc && fbp && id && trackingId) {
-      fetch('https://dev.nice-advice.info/lead', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: id,
-          fbc: fbc,
-          fbp: fbp,
-          trackingId: trackingId,
-          trackingDocId: trackingDocId,
-          country: productData.country,
-        }),
-      })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Request failed');
-          }
-          return res.json();
-        })
-        .then(response => {
-          console.log(response);
-        })
-        .catch(err => {
-          console.error('❌ Error:', err);
+    if (id && trackingId) {
+      try {
+        const response = await fetch('http://localhost:4000/lead', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productId: id,
+            fbc: fbc,
+            fbp: fbp,
+            trackingId: trackingId,
+            trackingDocId: trackingDocId,
+            country: productData.country,
+          }),
         });
+
+        if (!response.ok) {
+          throw new Error('Request failed');
+        }
+
+        const data = await response.json();
+        console.log('Lead response:', data);
+
+        // Если сервер вернул другой тег (из-за конфликта), используем его
+        if (data.trackingId) {
+          setTrackingId(data.trackingId);
+          setTrackingDocId(data.trackingDocId);
+          return data.trackingId;
+        }
+        return trackingId;
+      } catch (err) {
+        console.error('❌ Error:', err);
+        return trackingId; // Возвращаем текущий в случае ошибки
+      }
     }
+    return trackingId;
   };
 
   // useEffect(() => {
   //   if (fbclid && id && productData.tag && fbclid !== 'fbclid') {
   //     const send = async () => {
   //       try {
-  //         const res = await fetch(`https://dev.nice-advice.info/fbclid`, {
+  //         const res = await fetch(`http://localhost:4000/fbclid`, {
   //           headers: { 'Content-Type': 'application/json' },
   //           method: 'POST',
   //           body: JSON.stringify({
@@ -121,7 +130,7 @@ const Product = () => {
   // useEffect(() => {
   //   if (fbclid) {
   //     try {
-  //       fetch(`https://dev.nice-advice.info/get-product/ads/${id}`, {
+  //       fetch(`http://localhost:4000/get-product/ads/${id}`, {
   //         headers: { 'Content-Type': 'application/json' },
   //         method: 'POST',
   //         body: JSON.stringify({ fbclid: fbclid }),
@@ -156,9 +165,12 @@ const Product = () => {
       <img
         id="cta-image"
         src={productData?.image?.url}
-        onClick={() => {
-          handleCtaClick();
-          window.open(`${productData?.link}&tag=${trackingId}-20`, '_blank');
+        onClick={async () => {
+          const finalTrackingId = await handleCtaClick();
+          window.open(
+            `${productData?.link}&tag=${finalTrackingId}-20`,
+            '_blank',
+          );
         }}
         className="w-[90vw] md:w-[40vw] rounded-xl cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl"
       />
@@ -171,7 +183,14 @@ const Product = () => {
       <p className="w-[90%] md:w-[40%]">{productData?.descriptionfield4}</p>
       <a
         href={`${productData?.link}&tag=${trackingId}-20`}
-        onClick={() => handleCtaClick()}
+        onClick={async e => {
+          e.preventDefault();
+          const finalTrackingId = await handleCtaClick();
+          window.open(
+            `${productData?.link}&tag=${finalTrackingId}-20`,
+            '_blank',
+          );
+        }}
         target="_blank"
         rel="noopener noreferrer"
         className="w-[90vw] md:w-[40vw] p-5 m-5 rounded bg-[rgb(3,145,133)] text-2xl font-bold relative bg-[#eaa31e] border border-black rounded-lg py-[15px] px-[20px] mb-[10px] flex justify-center items-center cursor-pointer transition-colors duration-300 font-bold overflow-hidden text-[17px] hover:bg-[#c47f00]

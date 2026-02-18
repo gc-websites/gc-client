@@ -29,7 +29,7 @@ const MultiProduct = () => {
 
   /* ========== FETCH ========== */
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
+    fetch(`http://localhost:4000/get-multiproduct/${id}`)
       .then(res => res.json())
       .then(res => setPageData(res.data))
       .catch(console.error);
@@ -39,7 +39,7 @@ const MultiProduct = () => {
   useEffect(() => {
     if (!pageData?.country) return;
 
-    fetch('https://dev.nice-advice.info/get-trackingId', {
+    fetch('http://localhost:4000/get-trackingId', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ country: pageData.country }),
@@ -66,22 +66,39 @@ const MultiProduct = () => {
   };
 
   /* ========== LEAD ========== */
-  const handleCtaClick = productItemId => {
-    if (!fbc || !fbp || !trackingId) return;
+  const handleCtaClick = async productItemId => {
+    if (!trackingId) return trackingId;
 
-    fetch('https://dev.nice-advice.info/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        multiproductId: id,
-        productItemId,
-        fbc,
-        fbp,
-        trackingId,
-        trackingDocId,
-        country: pageData.country,
-      }),
-    });
+    try {
+      const res = await fetch('http://localhost:4000/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          multiproductId: id,
+          productItemId,
+          fbc,
+          fbp,
+          trackingId,
+          trackingDocId,
+          country: pageData.country,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Lead request failed');
+
+      const data = await res.json();
+      console.log('Lead response:', data);
+
+      if (data.trackingId) {
+        setTrackingId(data.trackingId);
+        setTrackingDocId(data.trackingDocId);
+        return data.trackingId;
+      }
+      return trackingId;
+    } catch (err) {
+      console.error('❌ Lead error:', err);
+      return trackingId;
+    }
   };
 
   if (!pageData) return null;
@@ -106,8 +123,6 @@ const MultiProduct = () => {
       {/* ================= PRODUCTS ================= */}
       <section className="flex flex-col items-center gap-14 px-4">
         {pageData.product.map((item, index) => {
-          const finalLink = `${normalizeUrl(item.link)}&tag=${trackingId}-20`;
-
           return (
             <div
               key={item.id}
@@ -125,9 +140,10 @@ const MultiProduct = () => {
                   src={item.image?.url}
                   alt={item.title}
                   className="w-full cursor-pointer transition-transform duration-500 group-hover:scale-105"
-                  onClick={() => {
-                    handleCtaClick(item.id);
-                    window.open(finalLink, '_blank', 'noopener,noreferrer');
+                  onClick={async () => {
+                    const finalTrackingId = await handleCtaClick(item.id);
+                    const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                    window.open(link, '_blank', 'noopener,noreferrer');
                   }}
                 />
               </div>
@@ -153,10 +169,15 @@ const MultiProduct = () => {
 
                 {/* CTA */}
                 <a
-                  href={finalLink}
+                  href={`${normalizeUrl(item.link)}&tag=${trackingId}-20`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => handleCtaClick(item.id)}
+                  onClick={async e => {
+                    e.preventDefault();
+                    const finalTrackingId = await handleCtaClick(item.id);
+                    const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                    window.open(link, '_blank', 'noopener,noreferrer');
+                  }}
                   className="mt-4 w-full bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold text-lg py-[16px] rounded-xl border border-black flex justify-center items-center relative overflow-hidden animate-pulseCTA before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine"
                 >
                   VIEW ON AMAZON →
@@ -172,7 +193,16 @@ const MultiProduct = () => {
         {pageData.product?.[0] && (
           <a
             href={`${normalizeUrl(pageData.product[0].link)}&tag=${trackingId}-20`}
-            onClick={() => handleCtaClick(pageData.product[0].id)}
+            onClick={async e => {
+              e.preventDefault();
+              const finalTrackingId = await handleCtaClick(
+                pageData.product[0].id,
+              );
+              const link = `${normalizeUrl(
+                pageData.product[0].link,
+              )}&tag=${finalTrackingId}-20`;
+              window.open(link, '_blank', 'noopener,noreferrer');
+            }}
             className="m-3 bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold py-4 rounded-xl flex justify-center items-center border border-black animate-pulseCTA"
           >
             🔥 View Best Deal on Amazon
