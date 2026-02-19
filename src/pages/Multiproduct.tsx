@@ -13,6 +13,7 @@ const MultiProduct = () => {
   const [secondsLeft, setSecondsLeft] = useState(600);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isLocked = React.useRef(false);
 
   /* ========= FIX DOMAIN ========= */
   const normalizeUrl = url => {
@@ -89,8 +90,9 @@ const MultiProduct = () => {
 
   /* ========== LEAD ========== */
   const handleCtaClick = async productItemId => {
-    if (!trackingId || isSubmitting) return trackingId;
+    if (!trackingId || isSubmitting || isLocked.current) return trackingId;
 
+    isLocked.current = true;
     setIsSubmitting(true);
     try {
       const res = await fetch('https://dev.nice-advice.info/lead', {
@@ -117,13 +119,16 @@ const MultiProduct = () => {
         setTrackingId(data.trackingId);
         setTrackingDocId(data.trackingDocId);
         setIsSubmitting(false);
+        isLocked.current = false;
         return data.trackingId;
       }
       setIsSubmitting(false);
+      isLocked.current = false;
       return trackingId;
     } catch (err) {
       console.error('❌ Lead error:', err);
       setIsSubmitting(false);
+      isLocked.current = false;
       return trackingId;
     }
   };

@@ -25,6 +25,7 @@ const Product = () => {
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isLocked = React.useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -92,7 +93,8 @@ const Product = () => {
   }, [productData]);
 
   const handleCtaClick = async () => {
-    if (id && trackingId && !isSubmitting) {
+    if (id && trackingId && !isSubmitting && !isLocked.current) {
+      isLocked.current = true;
       setIsSubmitting(true);
       try {
         const response = await fetch('https://dev.nice-advice.info/lead', {
@@ -123,13 +125,16 @@ const Product = () => {
           setTrackingId(data.trackingId);
           setTrackingDocId(data.trackingDocId);
           setIsSubmitting(false);
+          isLocked.current = false;
           return data.trackingId;
         }
         setIsSubmitting(false);
+        isLocked.current = false;
         return trackingId;
       } catch (err) {
         console.error('❌ Error:', err);
         setIsSubmitting(false);
+        isLocked.current = false;
         return trackingId; // Возвращаем текущий в случае ошибки
       }
     }
