@@ -33,13 +33,14 @@ const App = () => {
           button: { background: '#f1d600', text: '#000' },
         },
         theme: 'classic',
-        type: 'opt-in', // opt-in = пользователь должен согласиться
+        type: 'opt-in',
+        revokable: false, // Hide the revoke button after acceptance
         content: {
           message: 'We use cookies to improve website performance.',
           allow: 'Allow',
           deny: 'Deny',
           link: 'Details',
-          href: '/privacy', // твоя страница политики
+          href: '/privacy',
         },
       });
     }

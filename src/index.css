@@ -40,3 +40,34 @@ body::-webkit-scrollbar-thumb {
 .animate-pulseCTA {
   animation: pulseCTA 2s infinite;
 }
+
+@media (max-width: 768px) {
+  .cc-window {
+    font-size: 11px !important; /* Smaller font */
+    padding: 1em !important; /* Reduced padding */
+    max-width: 90% !important; /* Prevent full width feeling if floating */
+    margin: 0 auto 10px auto !important; /* Center and add bottom margin */
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* If it's a banner type (bottom), ensure it's compact */
+  .cc-banner {
+    padding: 0.5em !important;
+  }
+
+  .cc-message {
+    margin-bottom: 0.5em !important;
+    line-height: 1.3 !important;
+  }
+
+  .cc-btn {
+    font-size: 11px !important;
+    padding: 0.4em 0.8em !important;
+    border-radius: 4px !important;
+  }
+
+  .cc-revoke {
+    display: none !important; /* Completely hide the revoke button */
+  }
+}

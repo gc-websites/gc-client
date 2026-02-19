@@ -238,9 +238,23 @@ const Product = () => {
           }}
           className={`w-full rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
         />
-        <h1 className="text-2xl md:text-3xl text-center font-bold w-full mb-[2rem] mt-[1rem]">
+        <h1 className="text-2xl md:text-3xl text-center font-bold w-full mb-[1rem] mt-[1rem]">
           {productData?.title}
         </h1>
+        <a
+          onClick={async e => {
+            e.preventDefault();
+            if (isSubmitting) return;
+            const finalTrackingId = await handleCtaClick();
+            window.open(
+              `${productData?.link}&tag=${finalTrackingId}-20`,
+              '_blank',
+            );
+          }}
+          className={`text-red-600 font-bold text-xl md:text-2xl hover:underline mb-6 block text-center uppercase tracking-wider ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+        >
+          EXPLORE DEALS
+        </a>
         <div className="w-full flex flex-col items-center">
           <p className="w-full md:w-[90%] mb-4">
             {productData?.descriptionfield1}
