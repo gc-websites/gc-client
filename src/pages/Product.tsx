@@ -24,6 +24,7 @@ const Product = () => {
   const [trackingDocId, setTrackingDocId] = useState('');
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -91,7 +92,8 @@ const Product = () => {
   }, [productData]);
 
   const handleCtaClick = async () => {
-    if (id && trackingId) {
+    if (id && trackingId && !isSubmitting) {
+      setIsSubmitting(true);
       try {
         const response = await fetch('https://dev.nice-advice.info/lead', {
           method: 'POST',
@@ -120,11 +122,14 @@ const Product = () => {
         if (data.trackingId) {
           setTrackingId(data.trackingId);
           setTrackingDocId(data.trackingDocId);
+          setIsSubmitting(false);
           return data.trackingId;
         }
+        setIsSubmitting(false);
         return trackingId;
       } catch (err) {
         console.error('❌ Error:', err);
+        setIsSubmitting(false);
         return trackingId; // Возвращаем текущий в случае ошибки
       }
     }
@@ -194,7 +199,9 @@ const Product = () => {
   // }, [clickId, productData]);
 
   return (
-    <div className="flex flex-col md:flex-row justify-center items-start p-5 gap-4 md:gap-8 max-w-[1440px] mx-auto">
+    <div
+      className={`flex flex-col md:flex-row justify-center items-start p-5 gap-4 md:gap-8 max-w-[1440px] mx-auto ${isSubmitting ? 'pointer-events-none opacity-80' : ''}`}
+    >
       {/* Left Ad Block (Desktop Only) */}
       <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 min-h-[600px]">
         <GoogleAd adSlot="5670764383" />
@@ -217,13 +224,14 @@ const Product = () => {
           id="cta-image"
           src={productData?.image?.url}
           onClick={async () => {
+            if (isSubmitting) return;
             const finalTrackingId = await handleCtaClick();
             window.open(
               `${productData?.link}&tag=${finalTrackingId}-20`,
               '_blank',
             );
           }}
-          className="w-full rounded-xl cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl"
+          className={`w-full rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
         />
         <h1 className="text-2xl md:text-3xl text-center font-bold w-full mb-[2rem] mt-[1rem]">
           {productData?.title}
@@ -246,6 +254,7 @@ const Product = () => {
           href={`${productData?.link}&tag=${trackingId}-20`}
           onClick={async e => {
             e.preventDefault();
+            if (isSubmitting) return;
             const finalTrackingId = await handleCtaClick();
             window.open(
               `${productData?.link}&tag=${finalTrackingId}-20`,
@@ -254,10 +263,10 @@ const Product = () => {
           }}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full p-5 m-5 rounded bg-[rgb(3,145,133)] text-2xl font-bold relative bg-[#eaa31e] border border-black rounded-lg py-[15px] px-[20px] mb-[10px] flex justify-center items-center cursor-pointer transition-colors duration-300 font-bold overflow-hidden text-[17px] hover:bg-[#c47f00]
-              before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine font-inter"
+          className={`w-full p-5 m-5 rounded bg-[rgb(3,145,133)] text-2xl font-bold relative bg-[#eaa31e] border border-black rounded-lg py-[15px] px-[20px] mb-[10px] flex justify-center items-center transition-colors duration-300 font-bold overflow-hidden text-[17px] hover:bg-[#c47f00]
+              before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine font-inter ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
         >
-          VIEW ON AMAZON
+          {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON'}
         </a>
         <p className="border p-2 w-full">
           Editorial Note: We independently review all products. If you make a

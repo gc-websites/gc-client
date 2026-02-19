@@ -12,6 +12,8 @@ const MultiProduct = () => {
   const [fbc, setFbc] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(600);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   /* ========= FIX DOMAIN ========= */
   const normalizeUrl = url => {
     if (!url) return '#';
@@ -87,8 +89,9 @@ const MultiProduct = () => {
 
   /* ========== LEAD ========== */
   const handleCtaClick = async productItemId => {
-    if (!trackingId) return trackingId;
+    if (!trackingId || isSubmitting) return trackingId;
 
+    setIsSubmitting(true);
     try {
       const res = await fetch('https://dev.nice-advice.info/lead', {
         method: 'POST',
@@ -113,11 +116,14 @@ const MultiProduct = () => {
       if (data.trackingId) {
         setTrackingId(data.trackingId);
         setTrackingDocId(data.trackingDocId);
+        setIsSubmitting(false);
         return data.trackingId;
       }
+      setIsSubmitting(false);
       return trackingId;
     } catch (err) {
       console.error('❌ Lead error:', err);
+      setIsSubmitting(false);
       return trackingId;
     }
   };
@@ -125,7 +131,9 @@ const MultiProduct = () => {
   if (!pageData) return null;
 
   return (
-    <div className="bg-[#f5f6f7] min-h-screen pb-28">
+    <div
+      className={`bg-[#f5f6f7] min-h-screen pb-28 ${isSubmitting ? 'pointer-events-none' : ''}`}
+    >
       {/* ================= HERO ================= */}
       <section className="px-4 pt-10 pb-12 text-center max-w-3xl mx-auto">
         <span className="inline-block mb-3 px-4 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">
@@ -160,8 +168,9 @@ const MultiProduct = () => {
                 <img
                   src={item.image?.url}
                   alt={item.title}
-                  className="w-full cursor-pointer transition-transform duration-500 group-hover:scale-105"
+                  className={`w-full transition-transform duration-500 group-hover:scale-105 ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
                   onClick={async () => {
+                    if (isSubmitting) return;
                     const finalTrackingId = await handleCtaClick(item.id);
                     const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
                     window.open(link, '_blank', 'noopener,noreferrer');
@@ -195,13 +204,14 @@ const MultiProduct = () => {
                   rel="noopener noreferrer"
                   onClick={async e => {
                     e.preventDefault();
+                    if (isSubmitting) return;
                     const finalTrackingId = await handleCtaClick(item.id);
                     const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
                     window.open(link, '_blank', 'noopener,noreferrer');
                   }}
-                  className="mt-4 w-full bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold text-lg py-[16px] rounded-xl border border-black flex justify-center items-center relative overflow-hidden animate-pulseCTA before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine"
+                  className={`mt-4 w-full bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold text-lg py-[16px] rounded-xl border border-black flex justify-center items-center relative overflow-hidden animate-pulseCTA before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                 >
-                  VIEW ON AMAZON →
+                  {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON →'}
                 </a>
               </div>
             </div>
@@ -216,6 +226,7 @@ const MultiProduct = () => {
             href={`${normalizeUrl(pageData.product[0].link)}&tag=${trackingId}-20`}
             onClick={async e => {
               e.preventDefault();
+              if (isSubmitting) return;
               const finalTrackingId = await handleCtaClick(
                 pageData.product[0].id,
               );
@@ -224,9 +235,9 @@ const MultiProduct = () => {
               )}&tag=${finalTrackingId}-20`;
               window.open(link, '_blank', 'noopener,noreferrer');
             }}
-            className="m-3 bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold py-4 rounded-xl flex justify-center items-center border border-black animate-pulseCTA"
+            className={`m-3 bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold py-4 rounded-xl flex justify-center items-center border border-black animate-pulseCTA ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
           >
-            🔥 View Best Deal on Amazon
+            {isSubmitting ? 'PROCESSING...' : '🔥 View Best Deal on Amazon'}
           </a>
         )}
       </div>
