@@ -280,7 +280,7 @@ const ProductV2 = () => {
               {productData?.isTimerOn && (
                 <div className="flex flex-col items-center mt-2 w-full">
                   <p className="text-gray-700 text-sm md:text-base mb-3 font-medium">
-                    Offer ends when timer hits zero.
+                    Offer ends soon
                   </p>
                   <div className="flex gap-4">
                     <div className="flex flex-col items-center">
