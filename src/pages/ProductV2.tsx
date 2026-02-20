@@ -236,8 +236,7 @@ const ProductV2 = () => {
                     '_blank',
                   );
                 }}
-                className={`w-full h-auto object-cover rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
-                style={{ maxHeight: '500px' }}
+                className={`w-full max-w-[400px] h-auto object-contain rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
                 alt="Product"
               />
             </div>

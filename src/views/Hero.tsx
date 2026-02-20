@@ -45,14 +45,18 @@ const Hero = () => {
             className="group p-4 hover:shadow-lg rounded-lg h-full bg-white dark:bg-additionalText  flex flex-col"
           >
             <div className="flex items-center py-4 flex-wrap gap-4">
-              <img
-                src={popularPosts[0].author.avatar.url}
-                alt={popularPosts[0].author.name}
-                className="rounded-full w-12 h-12"
-              />
+              {popularPosts[0].author?.avatar?.url ? (
+                <img
+                  src={popularPosts[0].author.avatar.url}
+                  alt={popularPosts[0].author.name}
+                  className="rounded-full w-12 h-12 object-cover block"
+                />
+              ) : (
+                <div className="rounded-full w-12 h-12 bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+              )}
               <h5 className="section__title text-base font-bold">
                 <p className="text-mainText dark:text-white">
-                  {popularPosts[0].author.name}
+                  {popularPosts[0].author?.name}
                 </p>
               </h5>
               <img src={dot} alt="dot" className="w-2 h-2" />
@@ -64,12 +68,14 @@ const Hero = () => {
                 }).format(new Date(popularPosts[0].createdAt))}
               </p>
             </div>
-            <div className="w-full aspect-[4/3] overflow-hidden rounded-lg">
-              <img
-                src={popularPosts[0].image.url}
-                alt={popularPosts[0].title}
-                className="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-300"
-              />
+            <div className="w-full aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 relative">
+              {popularPosts[0].image?.url && (
+                <img
+                  src={popularPosts[0].image.url}
+                  alt={popularPosts[0].title}
+                  className="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-300"
+                />
+              )}
             </div>
             <div className="mt-6 flex flex-col gap-4 pb-4">
               <h2 className="section__title text-3xl text-mainText">
@@ -94,14 +100,18 @@ const Hero = () => {
                 className="group p-4 hover:shadow-lg rounded-lg bg-white dark:bg-additionalText transition duration-300 flex flex-col flex-1"
               >
                 <div className="flex items-center pb-2 flex-wrap gap-3">
-                  <img
-                    src={post.author.avatar.url}
-                    alt={post.author.name}
-                    className="rounded-full w-9 h-9"
-                  />
+                  {post.author?.avatar?.url ? (
+                    <img
+                      src={post.author.avatar.url}
+                      alt={post.author.name}
+                      className="rounded-full w-9 h-9 object-cover block"
+                    />
+                  ) : (
+                    <div className="rounded-full w-9 h-9 bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+                  )}
                   <h5 className="section__title text-sm font-bold">
                     <p className="text-mainText dark:text-white">
-                      {post.author.name}
+                      {post.author?.name}
                     </p>
                   </h5>
                   <img src={dot} alt="dot" className="w-2 h-2" />
@@ -113,12 +123,14 @@ const Hero = () => {
                     }).format(new Date(post.createdAt))}
                   </p>
                 </div>
-                <div className="w-full aspect-[4/3] overflow-hidden rounded-lg">
-                  <img
-                    src={post.image.url}
-                    alt={post.title}
-                    className="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-300"
-                  />
+                <div className="w-full aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 relative">
+                  {post.image?.url && (
+                    <img
+                      src={post.image.url}
+                      alt={post.title}
+                      className="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-300"
+                    />
+                  )}
                 </div>
                 <div className="mt-3 flex flex-col gap-2">
                   <h3 className="section__title text-lg text-mainText">
