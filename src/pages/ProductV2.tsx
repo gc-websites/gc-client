@@ -211,20 +211,16 @@ const ProductV2 = () => {
       className={`flex flex-col justify-center items-center p-5 gap-4 md:gap-8 max-w-[1000px] mx-auto min-h-screen ${isSubmitting ? 'pointer-events-none opacity-80' : ''}`}
     >
       <div className="flex flex-col justify-center items-center w-full">
-        {/* Main Content Container with special Dashed Border matching screenshot */}
-        <div className="w-full bg-[#f2f4f8] rounded-xl border-[2px] border-dashed border-[#1f2937] pt-8 px-4 pb-4 md:p-8 flex flex-col items-center">
-          {/* Top Amazon Logo */}
-          <div className="flex flex-col items-center justify-center mb-4 md:-mt-2 w-[160px] md:w-[200px]">
-            <img
-              src={amazonImg}
-              alt="Amazon"
-              className="w-full object-contain"
-            />
-          </div>
+        {/* Top Amazon Logo moved outside the border */}
+        <div className="flex flex-col items-center justify-center mb-4 w-[160px] md:w-[200px]">
+          <img src={amazonImg} alt="Amazon" className="w-full object-contain" />
+        </div>
 
-          <div className="flex flex-col md:flex-row w-full gap-8 lg:gap-12 mt-2">
+        {/* Main Content Container with special Dashed Border matching screenshot */}
+        <div className="w-full bg-[#f2f4f8] rounded-xl border-[2px] border-dashed border-[#1f2937] pt-4 px-2 pb-2 md:py-6 md:px-3 lg:px-6 flex flex-col items-center">
+          <div className="flex flex-col md:flex-row w-full gap-3 lg:gap-5 mt-2 items-stretch">
             {/* Left Image Section */}
-            <div className="w-full md:w-[55%] flex justify-center items-center">
+            <div className="w-full md:flex-1 flex justify-center items-center">
               <img
                 id="cta-image"
                 src={productData?.image?.url}
@@ -236,13 +232,13 @@ const ProductV2 = () => {
                     '_blank',
                   );
                 }}
-                className={`w-full max-w-[400px] h-auto object-contain rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+                className={`w-full aspect-square object-cover rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
                 alt="Product"
               />
             </div>
 
             {/* Right Info Section */}
-            <div className="w-full md:w-[45%] flex flex-col justify-center items-center text-center">
+            <div className="w-full md:flex-1 flex flex-col justify-center items-center text-center mt-4 md:mt-0 px-2 lg:px-4">
               {productData?.headerText && (
                 <p className="text-[#e11d48] font-bold text-sm md:text-base uppercase tracking-wider mb-2">
                   {productData.headerText} 🚨
