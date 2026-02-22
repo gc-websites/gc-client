@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useParams } from 'react-router-dom';
+import Page404 from './Page404';
 
 const MultiProduct = () => {
   const { id } = useParams();
@@ -11,6 +12,7 @@ const MultiProduct = () => {
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(600);
+  const [isNotFound, setIsNotFound] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isLocked = React.useRef(false);
@@ -53,9 +55,22 @@ const MultiProduct = () => {
   /* ========== FETCH ========== */
   useEffect(() => {
     fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 404) {
+          setIsNotFound(true);
+          throw new Error('404');
+        }
+        if (!res.ok) {
+          throw new Error('Failed to fetch multiproduct');
+        }
+        return res.json();
+      })
       .then(res => setPageData(res.data))
-      .catch(console.error);
+      .catch(err => {
+        if (err.message !== '404') {
+          console.error(err);
+        }
+      });
   }, [id]);
 
   /* ========== TRACKING ========== */
@@ -133,6 +148,7 @@ const MultiProduct = () => {
     }
   };
 
+  if (isNotFound) return <Page404 />;
   if (!pageData) return null;
 
   return (

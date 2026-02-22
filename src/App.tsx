@@ -18,6 +18,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Generation = lazy(() => import('./pages/Generation'));
 const Product = lazy(() => import('./pages/Product'));
 const ProductV2 = lazy(() => import('./pages/ProductV2'));
+const ProductV3 = lazy(() => import('./pages/ProductV3'));
 const ProductGeneration = lazy(() => import('./pages/ProductGeneration'));
 const Multiproduct = lazy(() => import('./pages/Multiproduct'));
 
@@ -93,6 +94,7 @@ const App = () => {
           <Route path="*" element={<Page404 />} />
           <Route path="/product/:productId" element={<Product />} />
           <Route path="/product-v2/:id" element={<ProductV2 />} />
+          <Route path="/product-v3/:id" element={<ProductV3 />} />
           <Route path="/multiproduct/:id" element={<Multiproduct />} />
           <Route
             path="/generation/product"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Cookies from 'js-cookie';
 import amazonImg from '../assets/img/amazon.png';
+import Page404 from './Page404';
 
 interface ProductV2Data {
   image?: { url: string };
@@ -27,6 +28,7 @@ const ProductV2 = () => {
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNotFound, setIsNotFound] = useState(false);
   const isLocked = useRef(false);
 
   // Calculate seconds until next midnight
@@ -66,24 +68,29 @@ const ProductV2 = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      fetch(`https://dev.nice-advice.info/get-product-v2/${id}`, {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'GET',
+    fetch(`https://dev.nice-advice.info/get-product-v2/${id}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'GET',
+    })
+      .then(res => {
+        if (res.status === 404) {
+          setIsNotFound(true);
+          throw new Error('404');
+        }
+        if (!res.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        return res.json();
       })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Failed to fetch products');
-          }
-          return res.json();
-        })
-        .then(data => {
-          setProductData(data.data);
-          console.log(data.data);
-        });
-    } catch (err) {
-      console.error('❌ Error:', err);
-    }
+      .then(data => {
+        setProductData(data.data);
+        console.log(data.data);
+      })
+      .catch(err => {
+        if (err.message !== '404') {
+          console.error('❌ Error:', err);
+        }
+      });
   }, [id]);
 
   useEffect(() => {
@@ -205,6 +212,10 @@ const ProductV2 = () => {
       ),
     );
   };
+
+  if (isNotFound) {
+    return <Page404 />;
+  }
 
   return (
     <div

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import GoogleAd from '../components/GoogleAd';
+import Page404 from './Page404';
 
 interface ProductData {
   image?: { url: string };
@@ -25,6 +26,7 @@ const Product = () => {
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNotFound, setIsNotFound] = useState(false);
   const isLocked = React.useRef(false);
 
   useEffect(() => {
@@ -53,25 +55,30 @@ const Product = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      fetch(`https://dev.nice-advice.info/get-product/${id}`, {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'GET',
+    fetch(`https://dev.nice-advice.info/get-product/${id}`, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'GET',
+    })
+      .then(res => {
+        if (res.status === 404) {
+          setIsNotFound(true);
+          throw new Error('404');
+        }
+        if (!res.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        return res.json();
       })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Failed to fetch products');
-          }
-          return res.json();
-        })
-        .then(data => {
-          setProductData(data.data);
-          console.log(productData);
-        });
-    } catch (err) {
-      console.error('❌ Error:', err);
-    }
-  }, []);
+      .then(data => {
+        setProductData(data.data);
+        console.log(data);
+      })
+      .catch(err => {
+        if (err.message !== '404') {
+          console.error('❌ Error:', err);
+        }
+      });
+  }, [id]);
 
   useEffect(() => {
     if (productData.country) {
@@ -202,6 +209,10 @@ const Product = () => {
   //     console.log(urlWithSubtag);
   //   }
   // }, [clickId, productData]);
+
+  if (isNotFound) {
+    return <Page404 />;
+  }
 
   return (
     <div
