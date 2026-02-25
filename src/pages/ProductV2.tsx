@@ -91,7 +91,7 @@ const ProductV2 = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/get-product-v2/${id}`, {
+    fetch(`https://dev.nice-advice.info/get-product-v2/${id}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'GET',
     })
@@ -122,7 +122,7 @@ const ProductV2 = () => {
         'Sending trackingId request for country:',
         productData.country,
       );
-      fetch('http://localhost:4000/get-trackingId', {
+      fetch('https://dev.gcamazingtool.xyz/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ const ProductV2 = () => {
       isLocked.current = true;
       setIsSubmitting(true);
       try {
-        const response = await fetch('http://localhost:4000/lead', {
+        const response = await fetch('https://dev.gcamazingtool.xyz/lead', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

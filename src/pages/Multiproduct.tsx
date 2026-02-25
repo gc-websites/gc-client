@@ -74,7 +74,7 @@ const MultiProduct = () => {
 
   /* ========== FETCH ========== */
   useEffect(() => {
-    fetch(`http://localhost:4000/get-multiproduct/${id}`)
+    fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
       .then(res => {
         if (res.status === 404) {
           setIsNotFound(true);
@@ -97,7 +97,7 @@ const MultiProduct = () => {
   useEffect(() => {
     if (!pageData?.country) return;
 
-    fetch('http://localhost:4000/get-trackingId', {
+    fetch('https://dev.gcamazingtool.xyz/get-trackingId', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ country: pageData.country }),
@@ -130,7 +130,7 @@ const MultiProduct = () => {
     isLocked.current = true;
     setIsSubmitting(true);
     try {
-      const res = await fetch('http://localhost:4000/lead', {
+      const res = await fetch('https://dev.gcamazingtool.xyz/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
