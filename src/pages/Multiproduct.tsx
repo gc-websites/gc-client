@@ -11,6 +11,9 @@ const MultiProduct = () => {
   const [trackingDocId, setTrackingDocId] = useState('');
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
+  const [gclid, setGclid] = useState('');
+  const [wbraid, setWbraid] = useState('');
+  const [gbraid, setGbraid] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(600);
   const [isNotFound, setIsNotFound] = useState(false);
 
@@ -50,11 +53,28 @@ const MultiProduct = () => {
 
     setFbp(currentFbp || '');
     setFbc(currentFbc || '');
+
+    // Restore or get Google Click IDs
+    const currentGclid = params.get('gclid') || Cookies.get('gclid') || '';
+    const currentWbraid = params.get('wbraid') || Cookies.get('wbraid') || '';
+    const currentGbraid = params.get('gbraid') || Cookies.get('gbraid') || '';
+    const currentCampaignId =
+      params.get('campaign_id') || Cookies.get('campaign_id') || '';
+
+    if (currentGclid) Cookies.set('gclid', currentGclid, { expires: 90 });
+    if (currentWbraid) Cookies.set('wbraid', currentWbraid, { expires: 90 });
+    if (currentGbraid) Cookies.set('gbraid', currentGbraid, { expires: 90 });
+    if (currentCampaignId)
+      Cookies.set('campaign_id', currentCampaignId, { expires: 90 });
+
+    setGclid(currentGclid);
+    setWbraid(currentWbraid);
+    setGbraid(currentGbraid);
   }, []);
 
   /* ========== FETCH ========== */
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
+    fetch(`http://localhost:4000/get-multiproduct/${id}`)
       .then(res => {
         if (res.status === 404) {
           setIsNotFound(true);
@@ -77,7 +97,7 @@ const MultiProduct = () => {
   useEffect(() => {
     if (!pageData?.country) return;
 
-    fetch('https://dev.nice-advice.info/get-trackingId', {
+    fetch('http://localhost:4000/get-trackingId', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ country: pageData.country }),
@@ -110,7 +130,7 @@ const MultiProduct = () => {
     isLocked.current = true;
     setIsSubmitting(true);
     try {
-      const res = await fetch('https://dev.nice-advice.info/lead', {
+      const res = await fetch('http://localhost:4000/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,6 +142,10 @@ const MultiProduct = () => {
           trackingDocId,
           country: pageData.country,
           external_id: trackingId, // Passing trackingId as external_id
+          gclid,
+          wbraid,
+          gbraid,
+          campaign_id: Cookies.get('campaign_id') || '',
         }),
       });
 

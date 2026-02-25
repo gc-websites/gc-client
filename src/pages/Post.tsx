@@ -43,7 +43,7 @@ const Post = () => {
   useEffect(() => {
     if (!submitEmail) return;
 
-    fetch('https://dev.nice-advice.info/email', {
+    fetch('http://localhost:4000/email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

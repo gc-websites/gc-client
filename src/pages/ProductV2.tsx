@@ -27,6 +27,9 @@ const ProductV2 = () => {
   const [trackingDocId, setTrackingDocId] = useState('');
   const [fbp, setFbp] = useState('');
   const [fbc, setFbc] = useState('');
+  const [gclid, setGclid] = useState('');
+  const [wbraid, setWbraid] = useState('');
+  const [gbraid, setGbraid] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
   const isLocked = useRef(false);
@@ -65,10 +68,30 @@ const ProductV2 = () => {
 
     setFbp(currentFbp || '');
     setFbc(currentFbc || '');
+
+    // Restore or get Google Click IDs
+    const currentGclid = params.get('gclid') || Cookies.get('gclid') || '';
+    const currentWbraid = params.get('wbraid') || Cookies.get('wbraid') || '';
+    const currentGbraid = params.get('gbraid') || Cookies.get('gbraid') || '';
+    const currentCampaignId =
+      params.get('campaign_id') || Cookies.get('campaign_id') || '';
+
+    if (currentGclid) Cookies.set('gclid', currentGclid, { expires: 90 });
+    if (currentWbraid) Cookies.set('wbraid', currentWbraid, { expires: 90 });
+    if (currentGbraid) Cookies.set('gbraid', currentGbraid, { expires: 90 });
+    if (currentCampaignId)
+      Cookies.set('campaign_id', currentCampaignId, { expires: 90 });
+
+    setGclid(currentGclid);
+    setWbraid(currentWbraid);
+    setGbraid(currentGbraid);
+
+    // store campaign_id on window or state? Let's just use cookie directly in POST /lead later
+    // or set it to a state. I'll pass it to handleCtaClick directly from Cookies.
   }, []);
 
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-product-v2/${id}`, {
+    fetch(`http://localhost:4000/get-product-v2/${id}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'GET',
     })
@@ -99,7 +122,7 @@ const ProductV2 = () => {
         'Sending trackingId request for country:',
         productData.country,
       );
-      fetch('https://dev.nice-advice.info/get-trackingId', {
+      fetch('http://localhost:4000/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +161,7 @@ const ProductV2 = () => {
       isLocked.current = true;
       setIsSubmitting(true);
       try {
-        const response = await fetch('https://dev.nice-advice.info/lead', {
+        const response = await fetch('http://localhost:4000/lead', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -151,6 +174,10 @@ const ProductV2 = () => {
             trackingDocId: trackingDocId,
             country: productData.country,
             external_id: trackingId, // Passing trackingId as external_id
+            gclid: gclid,
+            wbraid: wbraid,
+            gbraid: gbraid,
+            campaign_id: Cookies.get('campaign_id') || '',
           }),
         });
 
