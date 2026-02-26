@@ -135,12 +135,14 @@ const MultiProduct = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           multiproductId: id,
+          productId: id, // So the backend doesn't save empty productId
           productItemId,
           fbc,
           fbp,
           trackingId,
           trackingDocId,
           country: pageData.country,
+          event_source_url: window.location.href, // Capturing exact URL
           external_id: trackingId, // Passing trackingId as external_id
           gclid,
           wbraid,

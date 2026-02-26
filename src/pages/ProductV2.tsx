@@ -173,6 +173,7 @@ const ProductV2 = () => {
             trackingId: trackingId,
             trackingDocId: trackingDocId,
             country: productData.country,
+            event_source_url: window.location.href, // Capturing exact URL
             external_id: trackingId, // Passing trackingId as external_id
             gclid: gclid,
             wbraid: wbraid,
