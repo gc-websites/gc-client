@@ -59,7 +59,7 @@ const Generation = () => {
   //   const multiQueryFiltered = multiQuery.filter(str => str.trim() !== '');
   //   setMultiStatus('Creating posts...');
   //   const articlesRes = await fetch(
-  //     'https://dev.gcamazingtool.xyz/generate-posts',
+  //     'https://dev.nice-advice.info/generate-posts',
   //     {
   //       method: 'POST',
   //       headers: { 'Content-Type': 'application/json' },

@@ -122,7 +122,7 @@ const ProductV2 = () => {
         'Sending trackingId request for country:',
         productData.country,
       );
-      fetch('https://dev.gcamazingtool.xyz/get-trackingId', {
+      fetch('https://dev.nice-advice.info/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ const ProductV2 = () => {
       isLocked.current = true;
       setIsSubmitting(true);
       try {
-        const response = await fetch('https://dev.gcamazingtool.xyz/lead', {
+        const response = await fetch('https://dev.nice-advice.info/lead', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

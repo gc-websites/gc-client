@@ -97,7 +97,7 @@ const MultiProduct = () => {
   useEffect(() => {
     if (!pageData?.country) return;
 
-    fetch('https://dev.gcamazingtool.xyz/get-trackingId', {
+    fetch('https://dev.nice-advice.info/get-trackingId', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ country: pageData.country }),
@@ -130,7 +130,7 @@ const MultiProduct = () => {
     isLocked.current = true;
     setIsSubmitting(true);
     try {
-      const res = await fetch('https://dev.gcamazingtool.xyz/lead', {
+      const res = await fetch('https://dev.nice-advice.info/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
