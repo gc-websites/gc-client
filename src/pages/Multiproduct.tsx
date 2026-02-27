@@ -218,7 +218,11 @@ const MultiProduct = () => {
                     )}
 
                     <img
-                      src={item.image?.url}
+                      src={
+                        item.image?.formats?.large?.url ||
+                        item?.image?.formats?.medium?.url ||
+                        item.image?.url
+                      }
                       alt={item.title}
                       // @ts-ignore
                       fetchPriority={index === 0 ? 'high' : 'auto'}

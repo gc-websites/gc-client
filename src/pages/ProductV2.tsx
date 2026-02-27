@@ -271,7 +271,11 @@ const ProductV2 = () => {
                   id="cta-image"
                   // @ts-ignore
                   fetchPriority="high"
-                  src={productData?.image?.url}
+                  src={
+                    productData?.image?.formats?.large?.url ||
+                    productData?.image?.formats?.medium?.url ||
+                    productData?.image?.url
+                  }
                   onClick={async () => {
                     if (isSubmitting) return;
                     const finalTrackingId = await handleCtaClick();
