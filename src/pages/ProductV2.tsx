@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Cookies from 'js-cookie';
 import amazonImg from '../assets/img/amazon.png';
 import Page404 from './Page404';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 interface ProductV2Data {
   image?: { url: string };
@@ -23,6 +24,7 @@ const ProductV2 = () => {
   const pathname = url.pathname;
   const id = pathname.split('/').pop();
   const [productData, setProductData] = useState<ProductV2Data>({});
+  const [isLoading, setIsLoading] = useState(true);
   const [trackingId, setTrackingId] = useState('');
   const [trackingDocId, setTrackingDocId] = useState('');
   const [fbp, setFbp] = useState('');
@@ -91,7 +93,7 @@ const ProductV2 = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-product-v2/${id}`, {
+    fetch(`http://localhost:4000/get-product-v2/${id}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'GET',
     })
@@ -107,9 +109,11 @@ const ProductV2 = () => {
       })
       .then(data => {
         setProductData(data.data);
+        setIsLoading(false);
         console.log(data.data);
       })
       .catch(err => {
+        setIsLoading(false);
         if (err.message !== '404') {
           console.error('❌ Error:', err);
         }
@@ -122,7 +126,7 @@ const ProductV2 = () => {
         'Sending trackingId request for country:',
         productData.country,
       );
-      fetch('https://dev.nice-advice.info/get-trackingId', {
+      fetch('http://localhost:4000/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +165,7 @@ const ProductV2 = () => {
       isLocked.current = true;
       setIsSubmitting(true);
       try {
-        const response = await fetch('https://dev.nice-advice.info/lead', {
+        const response = await fetch('http://localhost:4000/lead', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -260,63 +264,79 @@ const ProductV2 = () => {
           <div className="flex flex-col md:flex-row w-full gap-3 lg:gap-5 mt-2 items-stretch">
             {/* Left Image Section */}
             <div className="w-full md:flex-1 flex justify-center items-center">
-              <img
-                id="cta-image"
-                src={productData?.image?.url}
-                onClick={async () => {
-                  if (isSubmitting) return;
-                  const finalTrackingId = await handleCtaClick();
-                  window.open(
-                    `${productData?.link}&tag=${finalTrackingId}-20`,
-                    '_blank',
-                  );
-                }}
-                className={`w-full aspect-square object-cover rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
-                alt="Product"
-              />
+              {isLoading ? (
+                <SkeletonLoader className="w-full aspect-square rounded-xl" />
+              ) : (
+                <img
+                  id="cta-image"
+                  // @ts-ignore
+                  fetchPriority="high"
+                  src={productData?.image?.url}
+                  onClick={async () => {
+                    if (isSubmitting) return;
+                    const finalTrackingId = await handleCtaClick();
+                    window.open(
+                      `${productData?.link}&tag=${finalTrackingId}-20`,
+                      '_blank',
+                    );
+                  }}
+                  className={`w-full aspect-square object-cover rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+                  alt="Product"
+                />
+              )}
             </div>
 
             {/* Right Info Section */}
             <div className="w-full md:flex-1 flex flex-col justify-center items-center text-center mt-4 md:mt-0 px-2 lg:px-4">
-              {productData?.headerText && (
+              {!isLoading && productData?.headerText && (
                 <p className="text-[#e11d48] font-bold text-sm md:text-base uppercase tracking-wider mb-2">
                   {productData.headerText} 🚨
                 </p>
               )}
 
-              {productData?.title && (
+              {isLoading ? (
+                <SkeletonLoader className="w-3/4 h-10 mb-6" />
+              ) : productData?.title ? (
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-snug">
                   {productData.title}
                 </h1>
+              ) : null}
+
+              {isLoading ? (
+                <SkeletonLoader className="w-full h-14 mb-6" />
+              ) : (
+                <a
+                  onClick={async e => {
+                    e.preventDefault();
+                    if (isSubmitting) return;
+                    const finalTrackingId = await handleCtaClick();
+                    window.open(
+                      `${productData?.link}&tag=${finalTrackingId}-20`,
+                      '_blank',
+                    );
+                  }}
+                  className={`w-full p-4 rounded bg-[#0b7b3c] hover:bg-[#07592b] text-white text-lg md:text-xl font-bold relative border border-transparent flex justify-center items-center transition-colors duration-300 overflow-hidden mb-6 uppercase tracking-wide
+                    before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine font-inter ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                >
+                  {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON'}
+                </a>
               )}
 
-              <a
-                onClick={async e => {
-                  e.preventDefault();
-                  if (isSubmitting) return;
-                  const finalTrackingId = await handleCtaClick();
-                  window.open(
-                    `${productData?.link}&tag=${finalTrackingId}-20`,
-                    '_blank',
-                  );
-                }}
-                className={`w-full p-4 rounded bg-[#0b7b3c] hover:bg-[#07592b] text-white text-lg md:text-xl font-bold relative border border-transparent flex justify-center items-center transition-colors duration-300 overflow-hidden mb-6 uppercase tracking-wide
-                  before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine font-inter ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-              >
-                {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON'}
-              </a>
+              {isLoading ? (
+                <SkeletonLoader className="w-full h-12 mb-6" />
+              ) : (
+                <div className="w-full bg-[#e2e8f0] rounded-md py-3 px-2 flex justify-center items-center text-sm md:text-base text-gray-700 shadow-inner mb-6">
+                  <span className="text-center w-[45%]">
+                    {renderMiniDesc1(productData?.descriptionMini1)}
+                  </span>
+                  <span className="text-gray-400 mx-2">|</span>
+                  <span className="text-center w-[45%]">
+                    {renderMiniDesc2(productData?.descriptionMini2)}
+                  </span>
+                </div>
+              )}
 
-              <div className="w-full bg-[#e2e8f0] rounded-md py-3 px-2 flex justify-center items-center text-sm md:text-base text-gray-700 shadow-inner mb-6">
-                <span className="text-center w-[45%]">
-                  {renderMiniDesc1(productData?.descriptionMini1)}
-                </span>
-                <span className="text-gray-400 mx-2">|</span>
-                <span className="text-center w-[45%]">
-                  {renderMiniDesc2(productData?.descriptionMini2)}
-                </span>
-              </div>
-
-              {productData?.isTimerOn && (
+              {!isLoading && productData?.isTimerOn && (
                 <div className="flex flex-col items-center mt-2 w-full">
                   <p className="text-gray-700 text-sm md:text-base mb-3 font-medium">
                     Offer ends soon
@@ -353,38 +373,61 @@ const ProductV2 = () => {
         {/* Descriptions Section below the dotted box */}
         <div className="w-full flex flex-col items-center mt-8 text-base md:text-lg text-gray-800 leading-relaxed px-2 md:px-0">
           <div className="inline-flex flex-col items-start mx-auto w-[95%] md:w-fit max-w-full">
-            {productData?.descriptionfield1 && (
-              <p className="mb-5 text-left">{productData.descriptionfield1}</p>
-            )}
-            {productData?.descriptionfield2 && (
-              <p className="mb-5 text-left">{productData.descriptionfield2}</p>
-            )}
-            {productData?.descriptionfield3 && (
-              <p className="mb-5 text-left">{productData.descriptionfield3}</p>
-            )}
-            {productData?.descriptionfield4 && (
-              <p className="mb-5 text-left">{productData.descriptionfield4}</p>
+            {isLoading ? (
+              <>
+                <SkeletonLoader className="w-[300px] max-w-full h-4 mb-5" />
+                <SkeletonLoader className="w-[300px] max-w-full h-4 mb-5" />
+                <SkeletonLoader className="w-[300px] max-w-full h-4 mb-5" />
+                <SkeletonLoader className="w-[300px] max-w-full h-4 mb-5" />
+              </>
+            ) : (
+              <>
+                {productData?.descriptionfield1 && (
+                  <p className="mb-5 text-left">
+                    {productData.descriptionfield1}
+                  </p>
+                )}
+                {productData?.descriptionfield2 && (
+                  <p className="mb-5 text-left">
+                    {productData.descriptionfield2}
+                  </p>
+                )}
+                {productData?.descriptionfield3 && (
+                  <p className="mb-5 text-left">
+                    {productData.descriptionfield3}
+                  </p>
+                )}
+                {productData?.descriptionfield4 && (
+                  <p className="mb-5 text-left">
+                    {productData.descriptionfield4}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
-          <a
-            href={`${productData?.link}&tag=${trackingId}-20`}
-            onClick={async e => {
-              e.preventDefault();
-              if (isSubmitting) return;
-              const finalTrackingId = await handleCtaClick();
-              window.open(
-                `${productData?.link}&tag=${finalTrackingId}-20`,
-                '_blank',
-              );
-            }}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`w-full p-5 mt-4 rounded-lg bg-[#0b7b3c] hover:bg-[#07592b] text-white text-xl md:text-2xl font-bold relative border border-transparent flex justify-center items-center transition-colors duration-300 overflow-hidden mb-6 uppercase tracking-wide
-              before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine font-inter ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-          >
-            {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON'}
-          </a>
+          {isLoading ? (
+            <SkeletonLoader className="w-full h-14 mb-6 mt-4" />
+          ) : (
+            <a
+              href={`${productData?.link}&tag=${trackingId}-20`}
+              onClick={async e => {
+                e.preventDefault();
+                if (isSubmitting) return;
+                const finalTrackingId = await handleCtaClick();
+                window.open(
+                  `${productData?.link}&tag=${finalTrackingId}-20`,
+                  '_blank',
+                );
+              }}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`w-full p-5 mt-4 rounded-lg bg-[#0b7b3c] hover:bg-[#07592b] text-white text-xl md:text-2xl font-bold relative border border-transparent flex justify-center items-center transition-colors duration-300 overflow-hidden mb-6 uppercase tracking-wide
+                before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine font-inter ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+            >
+              {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON'}
+            </a>
+          )}
 
           <p className="border p-3 w-full text-center text-sm md:text-base text-gray-600 bg-gray-50">
             Editorial Note: We independently review all products. If you make a

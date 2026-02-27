@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useParams } from 'react-router-dom';
 import Page404 from './Page404';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const MultiProduct = () => {
   const { id } = useParams();
 
-  const [pageData, setPageData] = useState(null);
+  const [pageData, setPageData] = useState<any>(null);
   const [trackingId, setTrackingId] = useState('');
   const [trackingDocId, setTrackingDocId] = useState('');
   const [fbp, setFbp] = useState('');
@@ -74,7 +75,7 @@ const MultiProduct = () => {
 
   /* ========== FETCH ========== */
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-multiproduct/${id}`)
+    fetch(`http://localhost:4000/get-multiproduct/${id}`)
       .then(res => {
         if (res.status === 404) {
           setIsNotFound(true);
@@ -97,7 +98,7 @@ const MultiProduct = () => {
   useEffect(() => {
     if (!pageData?.country) return;
 
-    fetch('https://dev.nice-advice.info/get-trackingId', {
+    fetch('http://localhost:4000/get-trackingId', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ country: pageData.country }),
@@ -130,7 +131,7 @@ const MultiProduct = () => {
     isLocked.current = true;
     setIsSubmitting(true);
     try {
-      const res = await fetch('https://dev.nice-advice.info/lead', {
+      const res = await fetch('http://localhost:4000/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -175,7 +176,6 @@ const MultiProduct = () => {
   };
 
   if (isNotFound) return <Page404 />;
-  if (!pageData) return null;
 
   return (
     <div
@@ -188,7 +188,11 @@ const MultiProduct = () => {
         </span>
 
         <h1 className="text-3xl md:text-4xl font-extrabold mb-3">
-          {pageData.title}
+          {pageData ? (
+            pageData.title
+          ) : (
+            <SkeletonLoader className="h-10 w-3/4 mx-auto" />
+          )}
         </h1>
 
         <p className="text-gray-600 text-lg">
@@ -198,77 +202,98 @@ const MultiProduct = () => {
 
       {/* ================= PRODUCTS ================= */}
       <section className="flex flex-col items-center gap-14 px-4">
-        {pageData.product.map((item, index) => {
-          return (
-            <div
-              key={item.id}
-              className="w-full max-w-[560px] bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
-            >
-              {/* IMAGE */}
-              <div className="relative group">
-                {index === 0 && (
-                  <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    ⭐ Editor’s Choice
-                  </span>
-                )}
-
-                <img
-                  src={item.image?.url}
-                  alt={item.title}
-                  className={`w-full transition-transform duration-500 group-hover:scale-105 ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
-                  onClick={async () => {
-                    if (isSubmitting) return;
-                    const finalTrackingId = await handleCtaClick(item.id);
-                    const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
-                    window.open(link, '_blank', 'noopener,noreferrer');
-                  }}
-                />
-              </div>
-
-              {/* CONTENT */}
-              <div className="p-6 space-y-3">
-                <h2 className="text-2xl font-bold text-center">{item.title}</h2>
-
-                <div className="flex justify-center gap-1 text-yellow-400">
-                  ⭐⭐⭐⭐⭐
-                </div>
-
-                <div className="text-gray-700 space-y-1">
-                  <p>{item.descriptionfield1}</p>
-                  <p>{item.descriptionfield2}</p>
-                  <p>{item.descriptionfield3}</p>
-                  <p>{item.descriptionfield4}</p>
-                </div>
-
-                <div className="flex justify-center gap-2 text-sm text-gray-500">
-                  🚚 Fast Shipping • 🔒 Secure Checkout
-                </div>
-
-                {/* CTA */}
-                <a
-                  href={`${normalizeUrl(item.link)}&tag=${trackingId}-20`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={async e => {
-                    e.preventDefault();
-                    if (isSubmitting) return;
-                    const finalTrackingId = await handleCtaClick(item.id);
-                    const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
-                    window.open(link, '_blank', 'noopener,noreferrer');
-                  }}
-                  className={`mt-4 w-full bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold text-lg py-[16px] rounded-xl border border-black flex justify-center items-center relative overflow-hidden animate-pulseCTA before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+        {pageData
+          ? pageData.product.map((item: any, index: number) => {
+              return (
+                <div
+                  key={item.id}
+                  className="w-full max-w-[560px] bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
                 >
-                  {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON →'}
-                </a>
+                  {/* IMAGE */}
+                  <div className="relative group">
+                    {index === 0 && (
+                      <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        ⭐ Editor’s Choice
+                      </span>
+                    )}
+
+                    <img
+                      src={item.image?.url}
+                      alt={item.title}
+                      // @ts-ignore
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      className={`w-full transition-transform duration-500 group-hover:scale-105 ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+                      onClick={async () => {
+                        if (isSubmitting) return;
+                        const finalTrackingId = await handleCtaClick(item.id);
+                        const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                        window.open(link, '_blank', 'noopener,noreferrer');
+                      }}
+                    />
+                  </div>
+
+                  {/* CONTENT */}
+                  <div className="p-6 space-y-3">
+                    <h2 className="text-2xl font-bold text-center">
+                      {item.title}
+                    </h2>
+
+                    <div className="flex justify-center gap-1 text-yellow-400">
+                      ⭐⭐⭐⭐⭐
+                    </div>
+
+                    <div className="text-gray-700 space-y-1">
+                      <p>{item.descriptionfield1}</p>
+                      <p>{item.descriptionfield2}</p>
+                      <p>{item.descriptionfield3}</p>
+                      <p>{item.descriptionfield4}</p>
+                    </div>
+
+                    <div className="flex justify-center gap-2 text-sm text-gray-500">
+                      🚚 Fast Shipping • 🔒 Secure Checkout
+                    </div>
+
+                    {/* CTA */}
+                    <a
+                      href={`${normalizeUrl(item.link)}&tag=${trackingId}-20`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={async e => {
+                        e.preventDefault();
+                        if (isSubmitting) return;
+                        const finalTrackingId = await handleCtaClick(item.id);
+                        const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                        window.open(link, '_blank', 'noopener,noreferrer');
+                      }}
+                      className={`mt-4 w-full bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold text-lg py-[16px] rounded-xl border border-black flex justify-center items-center relative overflow-hidden animate-pulseCTA before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                    >
+                      {isSubmitting ? 'PROCESSING...' : 'VIEW ON AMAZON →'}
+                    </a>
+                  </div>
+                </div>
+              );
+            })
+          : [1, 2].map(i => (
+              <div
+                key={i}
+                className="w-full max-w-[560px] bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
+              >
+                <SkeletonLoader className="w-full aspect-square" />
+                <div className="p-6 space-y-3">
+                  <SkeletonLoader className="h-8 w-3/4 mx-auto" />
+                  <SkeletonLoader className="h-4 w-full" />
+                  <SkeletonLoader className="h-4 w-full" />
+                  <SkeletonLoader className="h-4 w-full" />
+                  <SkeletonLoader className="h-14 w-full mt-4 rounded-xl" />
+                </div>
               </div>
-            </div>
-          );
-        })}
+            ))}
       </section>
 
       {/* ================= STICKY CTA ================= */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-lg md:hidden">
-        {pageData.product?.[0] && (
+        {pageData?.product?.[0] && (
           <a
             href={`${normalizeUrl(pageData.product[0].link)}&tag=${trackingId}-20`}
             onClick={async e => {

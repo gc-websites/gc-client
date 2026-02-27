@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import GoogleAd from '../components/GoogleAd';
 import Page404 from './Page404';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 interface ProductData {
   image?: { url: string };
@@ -21,6 +22,7 @@ const Product = () => {
   const pathname = url.pathname;
   const id = pathname.split('/').pop();
   const [productData, setProductData] = useState<ProductData>({});
+  const [isLoading, setIsLoading] = useState(true);
   const [trackingId, setTrackingId] = useState('');
   const [trackingDocId, setTrackingDocId] = useState('');
   const [fbp, setFbp] = useState('');
@@ -75,7 +77,7 @@ const Product = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`https://dev.nice-advice.info/get-product/${id}`, {
+    fetch(`http://localhost:4000/get-product/${id}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'GET',
     })
@@ -91,9 +93,11 @@ const Product = () => {
       })
       .then(data => {
         setProductData(data.data);
+        setIsLoading(false);
         console.log(data);
       })
       .catch(err => {
+        setIsLoading(false);
         if (err.message !== '404') {
           console.error('❌ Error:', err);
         }
@@ -103,7 +107,7 @@ const Product = () => {
   useEffect(() => {
     if (productData.country) {
       console.log('prcountry+');
-      fetch('https://dev.nice-advice.info/get-trackingId', {
+      fetch('http://localhost:4000/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +128,7 @@ const Product = () => {
       isLocked.current = true;
       setIsSubmitting(true);
       try {
-        const response = await fetch('https://dev.nice-advice.info/lead', {
+        const response = await fetch('http://localhost:4000/lead', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -177,7 +181,7 @@ const Product = () => {
   //   if (fbclid && id && productData.tag && fbclid !== 'fbclid') {
   //     const send = async () => {
   //       try {
-  //         const res = await fetch(`https://dev.nice-advice.info/fbclid`, {
+  //         const res = await fetch(`http://localhost:4000/fbclid`, {
   //           headers: { 'Content-Type': 'application/json' },
   //           method: 'POST',
   //           body: JSON.stringify({
@@ -205,7 +209,7 @@ const Product = () => {
   // useEffect(() => {
   //   if (fbclid) {
   //     try {
-  //       fetch(`https://dev.nice-advice.info/get-product/ads/${id}`, {
+  //       fetch(`http://localhost:4000/get-product/ads/${id}`, {
   //         headers: { 'Content-Type': 'application/json' },
   //         method: 'POST',
   //         body: JSON.stringify({ fbclid: fbclid }),
@@ -261,49 +265,74 @@ const Product = () => {
           />
         </div>
 
-        <img
-          id="cta-image"
-          src={productData?.image?.url}
-          onClick={async () => {
-            if (isSubmitting) return;
-            const finalTrackingId = await handleCtaClick();
-            window.open(
-              `${productData?.link}&tag=${finalTrackingId}-20`,
-              '_blank',
-            );
-          }}
-          className={`w-full rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
-        />
-        <h1 className="text-2xl md:text-3xl text-center font-bold w-full mb-[1rem] mt-[1rem]">
-          {productData?.title}
-        </h1>
-        <a
-          onClick={async e => {
-            e.preventDefault();
-            if (isSubmitting) return;
-            const finalTrackingId = await handleCtaClick();
-            window.open(
-              `${productData?.link}&tag=${finalTrackingId}-20`,
-              '_blank',
-            );
-          }}
-          className={`text-red-600 font-bold text-xl md:text-2xl hover:underline mb-6 block text-center uppercase tracking-wider ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-        >
-          EXPLORE DEALS
-        </a>
+        {isLoading ? (
+          <SkeletonLoader className="w-full aspect-video rounded-xl" />
+        ) : (
+          <img
+            id="cta-image"
+            // @ts-ignore
+            fetchPriority="high"
+            src={productData?.image?.url}
+            onClick={async () => {
+              if (isSubmitting) return;
+              const finalTrackingId = await handleCtaClick();
+              window.open(
+                `${productData?.link}&tag=${finalTrackingId}-20`,
+                '_blank',
+              );
+            }}
+            className={`w-full aspect-video object-cover rounded-xl transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl ${isSubmitting ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+          />
+        )}
+        {isLoading ? (
+          <SkeletonLoader className="h-10 w-3/4 mb-[1rem] mt-[1rem]" />
+        ) : (
+          <h1 className="text-2xl md:text-3xl text-center font-bold w-full mb-[1rem] mt-[1rem]">
+            {productData?.title}
+          </h1>
+        )}
+        {isLoading ? (
+          <SkeletonLoader className="h-8 w-1/2 mb-6" />
+        ) : (
+          <a
+            onClick={async e => {
+              e.preventDefault();
+              if (isSubmitting) return;
+              const finalTrackingId = await handleCtaClick();
+              window.open(
+                `${productData?.link}&tag=${finalTrackingId}-20`,
+                '_blank',
+              );
+            }}
+            className={`text-red-600 font-bold text-xl md:text-2xl hover:underline mb-6 block text-center uppercase tracking-wider ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          >
+            EXPLORE DEALS
+          </a>
+        )}
         <div className="w-full flex flex-col items-center">
-          <p className="w-full md:w-[90%] mb-4">
-            {productData?.descriptionfield1}
-          </p>
-          <p className="w-full md:w-[90%] mb-4">
-            {productData?.descriptionfield2}
-          </p>
-          <p className="w-full md:w-[90%] mb-4">
-            {productData?.descriptionfield3}
-          </p>
-          <p className="w-full md:w-[90%] mb-4">
-            {productData?.descriptionfield4}
-          </p>
+          {isLoading ? (
+            <>
+              <SkeletonLoader className="h-4 w-full md:w-[90%] mb-4" />
+              <SkeletonLoader className="h-4 w-full md:w-[90%] mb-4" />
+              <SkeletonLoader className="h-4 w-full md:w-[90%] mb-4" />
+              <SkeletonLoader className="h-4 w-full md:w-[90%] mb-4" />
+            </>
+          ) : (
+            <>
+              <p className="w-full md:w-[90%] mb-4">
+                {productData?.descriptionfield1}
+              </p>
+              <p className="w-full md:w-[90%] mb-4">
+                {productData?.descriptionfield2}
+              </p>
+              <p className="w-full md:w-[90%] mb-4">
+                {productData?.descriptionfield3}
+              </p>
+              <p className="w-full md:w-[90%] mb-4">
+                {productData?.descriptionfield4}
+              </p>
+            </>
+          )}
         </div>
         <a
           href={`${productData?.link}&tag=${trackingId}-20`}
