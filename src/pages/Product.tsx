@@ -77,7 +77,7 @@ const Product = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/get-product/${id}`, {
+    fetch(`https://dev.nice-advice.info/get-product/${id}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'GET',
     })
@@ -107,7 +107,7 @@ const Product = () => {
   useEffect(() => {
     if (productData.country) {
       console.log('prcountry+');
-      fetch('http://localhost:4000/get-trackingId', {
+      fetch('https://dev.nice-advice.info/get-trackingId', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ const Product = () => {
       isLocked.current = true;
       setIsSubmitting(true);
       try {
-        const response = await fetch('http://localhost:4000/lead', {
+        const response = await fetch('https://dev.nice-advice.info/lead', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ const Product = () => {
   //   if (fbclid && id && productData.tag && fbclid !== 'fbclid') {
   //     const send = async () => {
   //       try {
-  //         const res = await fetch(`http://localhost:4000/fbclid`, {
+  //         const res = await fetch(`https://dev.nice-advice.info/fbclid`, {
   //           headers: { 'Content-Type': 'application/json' },
   //           method: 'POST',
   //           body: JSON.stringify({
@@ -209,7 +209,7 @@ const Product = () => {
   // useEffect(() => {
   //   if (fbclid) {
   //     try {
-  //       fetch(`http://localhost:4000/get-product/ads/${id}`, {
+  //       fetch(`https://dev.nice-advice.info/get-product/ads/${id}`, {
   //         headers: { 'Content-Type': 'application/json' },
   //         method: 'POST',
   //         body: JSON.stringify({ fbclid: fbclid }),
