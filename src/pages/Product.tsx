@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import GoogleAd from '../components/GoogleAd';
 import Page404 from './Page404';
 import SkeletonLoader from '../components/SkeletonLoader';
 
@@ -247,24 +246,7 @@ const Product = () => {
     <div
       className={`flex flex-col md:flex-row justify-center items-start p-5 gap-4 md:gap-8 max-w-[1440px] mx-auto ${isSubmitting ? 'pointer-events-none opacity-80' : ''}`}
     >
-      {/* Left Ad Block (Desktop Only) */}
-      <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 min-h-[600px]">
-        <GoogleAd adSlot="5670764383" />
-      </div>
-
       <div className="flex flex-col justify-center items-center w-full md:w-[50vw] lg:w-[40vw]">
-        {/* Mobile Ad Block (Mobile Only) */}
-        <div className="block md:hidden w-full mb-4 border-b border-black dark:border-white pb-3 mx-auto text-center">
-          <GoogleAd
-            adSlot="6594641858"
-            style={{
-              display: 'inline-block',
-              width: '100%',
-              height: '90px',
-            }}
-          />
-        </div>
-
         {isLoading ? (
           <SkeletonLoader className="w-full aspect-video rounded-xl" />
         ) : (
@@ -360,11 +342,6 @@ const Product = () => {
           Editorial Note: We independently review all products. If you make a
           purchase through our links, we may receive a commission
         </p>
-      </div>
-
-      {/* Right Ad Block (Desktop Only) */}
-      <div className="hidden md:block w-[160px] lg:w-[200px] sticky top-20 min-h-[600px]">
-        <GoogleAd adSlot="5670764383" />
       </div>
     </div>
   );
