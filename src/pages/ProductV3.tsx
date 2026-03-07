@@ -1,245 +1,538 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-
-const mockProduct = {
-  title: 'Premium Wireless Noise-Cancelling Headphones Pro',
-  price: '$199.99',
-  originalPrice: '$299.99',
-  rating: 4.9,
-  reviewsCount: 12453,
-  image:
-    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop',
-  stock: 14,
-};
-
-const StarIcon = ({ className = 'w-4 h-4' }) => (
-  <svg
-    className={className}
-    fill="currentColor"
-    viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-  </svg>
-);
-
-const CheckCircleIcon = ({ className = 'w-5 h-5' }) => (
-  <svg
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2.5}
-      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
-  </svg>
-);
-
-const AmazonLogo = ({ className = 'h-6' }) => (
-  // SVG Approximation of Amazon wordmark
-  <svg
-    className={className}
-    viewBox="0 0 100 30"
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M63.7,13.8c0-5.8-3.4-8.1-7.8-8.1c-4.4,0-8.2,3-8.2,8.6c0,4.8,3,8.4,7.8,8.4c2.8,0,5.2-1.2,6.5-2.9l-1.9-2.3 c-1.1,1.3-2.6,2.1-4.5,2.1c-3.1,0-4.6-2.1-4.8-4.8h11.7C63.2,14.6,63.7,14.5,63.7,13.8z M50.7,12.5c0.3-2.6,2.2-4.1,4.7-4.1 c2.3,0,4.4,1.4,4.6,4.1H50.7z" />
-    <path d="M41.8,22.2L34.6,6h3.4l5.3,12L48.6,6h3.4l-7.2,16.2H41.8z" />
-    <path d="M29.1,6v16.2h-3V16c-1.2,1.6-3.1,2.5-5.3,2.5c-4,0-7.3-3.1-7.3-8.4c0-5,3.1-8.6,7.4-8.6c2.5,0,4.4,1.1,5.5,2.9V6H29.1z  M16.5,14.3c0,3.3,1.9,5.5,4.8,5.5c2.9,0,4.9-2.1,4.9-5.5V14c0-3.3-1.9-5.5-4.8-5.5C18.6,8.6,16.5,10.8,16.5,14.3z" />
-    <path d="M78.6,6h-3.2l-5.7,8.6V6h-3v16.2h3v-7.8l5.8,7.8h3.5L72,12.8L78.6,6z" />
-    {/* Smile Arrow path purely conceptual for vibe */}
-    <path
-      d="M12.9,23.3C18.1,26.5,26.2,28,34.2,28c11,0,21-3.6,28.3-9.5c1.1-0.9,1-2.6-0.2-3.4c-1.1-0.8-2.7-0.7-3.8,0.2 c-6.4,5-15,8.2-24.3,8.2c-7.3,0-14.7-1.4-19.4-4.2c-1.3-0.8-3-0.3-3.7,1C10.5,21.6,11.3,22.5,12.9,23.3z"
-      fill="#FF9900"
-    />
-  </svg>
-);
+import { useEffect, useState, useRef } from 'react';
+import Cookies from 'js-cookie';
+import { useParams } from 'react-router-dom';
+import Page404 from './Page404';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const ProductV3 = () => {
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes urgency
+  const { id } = useParams<{ id: string }>();
+
+  const [pageData, setPageData] = useState<any>(null);
+  const [trackingId, setTrackingId] = useState('');
+  const [trackingDocId, setTrackingDocId] = useState('');
+  const [fbp, setFbp] = useState('');
+  const [fbc, setFbc] = useState('');
+  const [gclid, setGclid] = useState('');
+  const [wbraid, setWbraid] = useState('');
+  const [gbraid, setGbraid] = useState('');
+  const [isNotFound, setIsNotFound] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isLocked = useRef(false);
+
+  const normalizeUrl = (url: string) => {
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `https://${url}`;
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
+    const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get('fbclid');
+
+    let currentFbp = Cookies.get('_fbp');
+    let currentFbc = Cookies.get('_fbc');
+
+    if (!currentFbc || currentFbc.includes('fbclid')) {
+      if (fbclid && fbclid !== 'fbclid') {
+        currentFbc = `fb.1.${Date.now()}.${fbclid}`;
+      }
+    }
+
+    if (!currentFbp) {
+      const timestamp = Date.now();
+      const randomPart = Math.floor(Math.random() * 2147483647);
+      currentFbp = `fb.1.${timestamp}.${randomPart}`;
+    }
+
+    setFbp(currentFbp || '');
+    setFbc(currentFbc || '');
+
+    const currentGclid = params.get('gclid') || Cookies.get('gclid') || '';
+    const currentWbraid = params.get('wbraid') || Cookies.get('wbraid') || '';
+    const currentGbraid = params.get('gbraid') || Cookies.get('gbraid') || '';
+    const currentCampaignId =
+      params.get('campaign_id') || Cookies.get('campaign_id') || '';
+
+    if (currentGclid) Cookies.set('gclid', currentGclid, { expires: 90 });
+    if (currentWbraid) Cookies.set('wbraid', currentWbraid, { expires: 90 });
+    if (currentGbraid) Cookies.set('gbraid', currentGbraid, { expires: 90 });
+    if (currentCampaignId)
+      Cookies.set('campaign_id', currentCampaignId, { expires: 90 });
+
+    setGclid(currentGclid);
+    setWbraid(currentWbraid);
+    setGbraid(currentGbraid);
   }, []);
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  useEffect(() => {
+    fetch(`https://dev.nice-advice.info/get-product-v3/${id}`)
+      .then(res => {
+        if (res.status === 404) {
+          setIsNotFound(true);
+          throw new Error('404');
+        }
+        if (!res.ok) throw new Error('Failed to fetch Product V3');
+        return res.json();
+      })
+      .then(res => {
+        setPageData(res.data);
+      })
+      .catch(err => {
+        if (err.message !== '404') console.error(err);
+      });
+  }, [id]);
+
+  useEffect(() => {
+    if (!pageData?.country) return;
+
+    fetch('https://dev.nice-advice.info/get-trackingId', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ country: pageData.country }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setTrackingId(data.name);
+        setTrackingDocId(data.documentId);
+      })
+      .catch(err => console.error('Error fetching tracking id:', err));
+  }, [pageData]);
+
+  const handleCtaClick = async (productItemId: string) => {
+    if (!trackingId || isSubmitting || isLocked.current) return trackingId;
+
+    isLocked.current = true;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('https://dev.nice-advice.info/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: id,
+          productItemId,
+          fbc: fbc,
+          fbp: fbp,
+          trackingId: trackingId,
+          trackingDocId: trackingDocId,
+          country: pageData.country,
+          event_source_url: window.location.href, // Capturing exact URL
+          external_id: trackingId, // Passing trackingId as external_id
+          gclid,
+          wbraid,
+          gbraid,
+          campaign_id: Cookies.get('campaign_id') || '',
+        }),
+      });
+
+      if (!res.ok) throw new Error('Lead request failed');
+
+      const data = await res.json();
+
+      // Если сервер вернул другой тег (из-за конфликта), используем его
+      if (data.trackingId) {
+        setTrackingId(data.trackingId);
+        setTrackingDocId(data.trackingDocId);
+        setIsSubmitting(false);
+        isLocked.current = false;
+        return data.trackingId;
+      }
+    } catch (err) {
+      console.error('❌ Lead error:', err);
+    }
+    setIsSubmitting(false);
+    isLocked.current = false;
+    return trackingId;
   };
 
-  const handleAmazonClick = () => {
-    // In real app, this would use tracking ID and real product link
-    console.log('Redirecting to Amazon...');
-    window.open('https://amazon.com', '_blank');
-  };
+  if (isNotFound) return <Page404 />;
 
-  // 100vh Layout forces everything to fit perfectly
+  const textBlocks = pageData?.text
+    ? pageData.text.split(/\n\n|\n/).filter((t: string) => t.trim() !== '')
+    : [];
+  const textFirstPara = textBlocks[0] || '';
+  const textRemainingParas = textBlocks.slice(1);
+
+  const subTextBlocks = pageData?.subText
+    ? pageData.subText.split(/\n\n|\n/).filter((t: string) => t.trim() !== '')
+    : [];
+
+  const updateDateMatch = pageData?.updatedAt
+    ? new Date(pageData.updatedAt)
+    : new Date();
+  const formattedDate = `${updateDateMatch.getDate().toString().padStart(2, '0')}.${(updateDateMatch.getMonth() + 1).toString().padStart(2, '0')}.${updateDateMatch.getFullYear()}`;
+
+  const defaultRatings = [
+    '9.9',
+    '9.7',
+    '9.5',
+    '9.4',
+    '9.4',
+    '9.2',
+    '9',
+    '8.9',
+    '8.6',
+    '8.5',
+  ];
+
+  const fallbackImages = [
+    'https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=250&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=250&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1572569432705-c68dc4af56b1?q=80&w=250&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=250&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1593642702821-c823b13eb412?q=80&w=250&auto=format&fit=crop',
+  ];
+
   return (
-    <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-teal-900 via-teal-800 to-green-900 text-white font-sans flex flex-col">
-      {/* Top Partnership Trust Bar */}
-      <div className="bg-black/40 backdrop-blur-md px-4 py-2 flex justify-center items-center gap-3 text-xs sm:text-sm font-semibold tracking-wider text-teal-100 z-10 shrink-0">
-        <CheckCircleIcon className="w-4 h-4 text-green-400" />
-        <span>EXCLUSIVE AMAZON PARTNER OFFER</span>
-        <div className="h-4 w-px bg-white/20 mx-1"></div>
-        <AmazonLogo className="h-4 sm:h-5 text-white" />
-      </div>
-
-      {/* Main Content Area - Split on Desktop, Stacked tight on Mobile */}
-      <div className="flex-1 flex flex-col md:flex-row min-h-0 relative">
-        {/* Left/Top: Image Section */}
-        <div className="flex-1 md:w-1/2 relative bg-black/20 flex items-center justify-center min-h-[40vh] md:min-h-0 p-4 sm:p-8">
-          {/* Ambient Glow */}
-          <div className="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full"></div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="w-full h-full max-h-[50vh] md:max-h-full relative z-10 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shadow-green-900/50 border border-white/10"
-          >
+    <div
+      className={`bg-white min-h-screen text-gray-800 font-sans ${isSubmitting ? 'pointer-events-none opacity-80' : ''}`}
+    >
+      <main className="max-w-[960px] mx-auto pb-16 shadow-lg bg-white relative">
+        {/* Title Image & Date overlay */}
+        <section className="relative w-full aspect-[21/9] sm:aspect-[3/1] md:aspect-[21/9] bg-gray-100 mb-6 group">
+          {pageData?.titleImg ? (
             <img
-              src={mockProduct.image}
-              alt={mockProduct.title}
+              src={
+                pageData.titleImg?.formats?.large?.url || pageData.titleImg?.url
+              }
+              alt="Hero"
               className="w-full h-full object-cover"
             />
-            {/* Overlay Gradient for contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          ) : (
+            <SkeletonLoader className="w-full h-full" />
+          )}
+          <div className="absolute bottom-4 left-4 bg-white/80 p-1.5 px-3 text-sm font-medium text-gray-700">
+            Última actualización: {formattedDate}
+          </div>
+        </section>
 
-            {/* Floating Badges on Image */}
-            <motion.div
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="absolute bottom-4 left-4 right-4 flex justify-between items-end"
-            >
-              <div className="bg-green-500 text-black font-extrabold px-3 py-1 rounded-full text-sm shadow-lg flex items-center gap-1">
-                🔥 IN HIGH DEMAND
-              </div>
-              <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg text-yellow-400 text-xs sm:text-sm font-bold border border-white/10">
-                <StarIcon /> {mockProduct.rating} ({mockProduct.reviewsCount})
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
+        <div className="px-5 md:px-10">
+          {/* H1 Title */}
+          {pageData?.Title ? (
+            <h1 className="text-3xl md:text-5xl font-extrabold text-[#333333] mb-6 tracking-tight">
+              {pageData.Title}
+            </h1>
+          ) : (
+            <SkeletonLoader className="h-10 w-3/4 mb-6" />
+          )}
 
-        {/* Right/Bottom: Content & Action Section */}
-        <div className="flex-[0.8] md:w-1/2 flex flex-col justify-center p-5 sm:p-8 md:p-12 min-h-0 z-10 bg-gradient-to-t md:bg-gradient-to-l from-black/40 to-transparent">
-          <div className="flex flex-col h-full justify-between max-w-lg mx-auto md:mx-0 w-full">
-            {/* Title & Price Body */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="mt-auto mb-auto md:mt-0"
-            >
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight text-white mb-2 sm:mb-4 line-clamp-3">
-                {mockProduct.title}
-              </h1>
+          {/* First Text Paragraph */}
+          {pageData?.text ? (
+            <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed mb-10 block">
+              {textFirstPara}
+            </p>
+          ) : (
+            <SkeletonLoader className="h-20 w-full mb-10" />
+          )}
 
-              <div className="flex items-end gap-3 mb-4 sm:mb-6">
-                <span className="text-4xl sm:text-5xl font-extrabold text-green-400 drop-shadow-lg">
-                  {mockProduct.price}
-                </span>
-                <span className="text-xl text-teal-200/50 line-through decoration-red-500/80 decoration-2 pb-1">
-                  {mockProduct.originalPrice}
-                </span>
-                <span className="bg-red-500/20 text-red-300 border border-red-500/30 text-xs font-bold px-2 py-1 rounded mb-2">
-                  SAVE 33%
-                </span>
-              </div>
+          {/* Mobile Product Cards */}
+          <section className="mb-10 w-full block md:hidden space-y-6">
+            {pageData?.product3?.length > 0
+              ? pageData.product3.map((item: any, idx: number) => {
+                  const rating = defaultRatings[idx] || '8.5';
+                  const discount = item.discount || '';
+                  const imageUrl =
+                    item.img?.formats?.thumbnail?.url ||
+                    item.img?.url ||
+                    fallbackImages[idx % fallbackImages.length];
+                  const displayTitle = item.title;
 
-              {/* Urgency Progress */}
-              <div className="bg-white/5 border border-white/10 p-3 sm:p-4 rounded-xl backdrop-blur-sm mb-4">
-                <div className="flex justify-between items-center text-sm font-bold text-teal-100 mb-2">
-                  <span className="flex items-center gap-1.5 align-middle">
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping absolute"></span>
-                    <span className="w-2 h-2 rounded-full bg-red-500 relative"></span>
-                    Only {mockProduct.stock} left
-                  </span>
-                  <span className="text-yellow-400 tabular-nums">
-                    Ends in: {formatTime(timeLeft)}
-                  </span>
-                </div>
-                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '85%' }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                    className="h-full bg-gradient-to-r from-teal-400 to-green-400"
-                  ></motion.div>
-                </div>
-              </div>
-            </motion.div>
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden relative"
+                    >
+                      {/* Rank Badge */}
+                      <div className="absolute top-0 left-0 bg-[#3bb392] text-white text-lg font-bold w-12 h-12 flex items-center justify-center rounded-br-xl z-20 shadow-md">
+                        {idx + 1}
+                      </div>
 
-            {/* CTA Section - Always visible at bottom */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, type: 'spring', stiffness: 100 }}
-              className="mt-auto pt-2 pb-2"
-            >
-              <button
-                onClick={handleAmazonClick}
-                className="group relative w-full w-full bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 text-black font-black text-xl sm:text-2xl py-4 sm:py-5 px-6 rounded-2xl shadow-[0_0_40px_rgba(16,185,129,0.4)] hover:shadow-[0_0_60px_rgba(16,185,129,0.6)] transform hover:-translate-y-1 transition-all overflow-hidden focus:outline-none focus:ring-4 focus:ring-green-300"
-              >
-                {/* Shine Animation overlay */}
-                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"></div>
+                      {/* Discount Badge */}
+                      {discount && (
+                        <div className="absolute top-2 right-2 bg-[#E7873D] text-white text-[11px] font-bold px-2.5 py-1 rounded-full z-20 shadow-sm border border-white">
+                          {discount}
+                        </div>
+                      )}
 
-                <div className="relative flex items-center justify-center gap-3">
-                  <span className="hidden sm:inline">Secure Deal On</span>
-                  <span className="sm:hidden">View On</span>
-                  <AmazonLogo className="h-6 sm:h-7 text-black drop-shadow-sm mb-1" />
-                  <svg
-                    className="w-6 h-6 sm:w-8 sm:h-8 animate-bounce"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                  </svg>
-                </div>
-              </button>
+                      <div className="p-4 flex flex-col items-center">
+                        {/* Image */}
+                        <div
+                          className="w-40 h-40 mb-4 flex justify-center items-center cursor-pointer relative"
+                          onClick={async () => {
+                            if (isSubmitting) return;
+                            const finalTrackingId = await handleCtaClick(
+                              item.id,
+                            );
+                            const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                            window.open(link, '_blank', 'noopener,noreferrer');
+                          }}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={displayTitle}
+                            className="max-w-full max-h-full object-contain mix-blend-multiply"
+                          />
+                        </div>
 
-              <div className="text-center mt-3 text-xs text-teal-200/70 font-medium flex items-center justify-center gap-1.5">
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
-                Guaranteed Safe Checkout by Amazon
-              </div>
-            </motion.div>
+                        {/* Title */}
+                        <a
+                          className="text-center font-bold text-[16px] text-[#333] hover:underline mb-3 line-clamp-3 leading-snug cursor-pointer"
+                          onClick={async () => {
+                            if (isSubmitting) return;
+                            const finalTrackingId = await handleCtaClick(
+                              item.id,
+                            );
+                            const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                            window.open(link, '_blank', 'noopener,noreferrer');
+                          }}
+                        >
+                          {displayTitle}
+                        </a>
+
+                        {/* Rating */}
+                        <div className="flex items-center justify-center mb-4 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                          <span className="text-sm text-gray-500 mr-2">
+                            Calificación:
+                          </span>
+                          <span className="text-2xl font-bold text-[#757575]">
+                            {rating}
+                          </span>
+                          <span className="text-xs text-[#A4A4A4] ml-1">
+                            /10
+                          </span>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="w-full mt-2">
+                          <div className="relative w-[90%] mx-auto">
+                            {discount && (
+                              <div className="absolute -top-2.5 -right-2 bg-[#EB8934] text-white text-[12px] font-extrabold px-2 py-0.5 rounded-full z-20 shadow-sm leading-none flex items-center justify-center border-[1.5px] border-white">
+                                {discount.toString().includes('%')
+                                  ? discount
+                                  : `${discount}%`}
+                              </div>
+                            )}
+                            <div className="rounded-full bg-[#EB8934] p-[1.5px] shadow-sm">
+                              <div className="rounded-full bg-white p-[2px]">
+                                <button
+                                  onClick={async () => {
+                                    if (isSubmitting) return;
+                                    const finalTrackingId =
+                                      await handleCtaClick(item.id);
+                                    const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                    window.open(
+                                      link,
+                                      '_blank',
+                                      'noopener,noreferrer',
+                                    );
+                                  }}
+                                  className={`w-full bg-[#5BC5A7] hover:bg-[#49a88e] text-white text-[16px] font-bold py-3 rounded-full uppercase tracking-wide transition-all ${isSubmitting ? 'opacity-50' : ''}`}
+                                >
+                                  REVISAR PRECIO
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-[13px] text-[#555] mt-3 mb-2 text-center">
+                            em{' '}
+                            <span className="font-bold text-[#FF9900]">
+                              amazon
+                            </span>
+                            .es
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              : [1, 2, 3].map(i => (
+                  <SkeletonLoader key={i} className="h-72 w-full rounded-xl" />
+                ))}
+          </section>
+
+          {/* Desktop Table */}
+          <section className="mb-10 w-full overflow-x-auto shadow-sm rounded-md hidden md:block">
+            <table className="w-full text-center border-collapse bg-white border border-[#EBEBEB] min-w-[700px]">
+              <thead className="bg-[#f7f8f8] text-[#767676] text-[15px] font-normal h-14">
+                <tr>
+                  <th className="border border-[#EBEBEB] font-normal w-[12%]"></th>
+                  <th className="border border-[#EBEBEB] font-normal w-[15%]">
+                    Imagen
+                  </th>
+                  <th className="border border-[#EBEBEB] font-normal w-[38%]">
+                    Nombre
+                  </th>
+                  <th className="border border-[#EBEBEB] font-normal w-[15%]">
+                    Calificación
+                  </th>
+                  <th className="border border-[#EBEBEB] font-normal w-[20%] uppercase text-xs tracking-wider font-semibold text-[#8C9095]">
+                    REVISAR PRECIO
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageData?.product3?.length > 0
+                  ? pageData.product3.map((item: any, idx: number) => {
+                      const rating = defaultRatings[idx] || '8.5';
+                      const discount = item.discount || '';
+                      const imageUrl =
+                        item.img?.formats?.thumbnail?.url ||
+                        item.img?.url ||
+                        fallbackImages[idx % fallbackImages.length];
+                      const displayTitle = item.title;
+
+                      return (
+                        <tr
+                          key={item.id}
+                          className="border-b border-[#EBEBEB] hover:bg-gray-50/50"
+                        >
+                          {/* Rank */}
+                          <td className="p-2 align-middle border-r border-[#EBEBEB]">
+                            <div className="flex flex-col items-center justify-center">
+                              <span className="text-[#3bb392] text-xl md:text-2xl font-light">
+                                {idx + 1}
+                              </span>
+                              <span className="text-[#A4A4A4] text-[10px] md:text-xs mt-0.5">
+                                di {pageData.product3.length}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-2 align-middle border-r border-[#EBEBEB] w-[15%]">
+                            <div
+                              className="w-16 h-16 md:w-[70px] md:h-[70px] mx-auto cursor-pointer flex justify-center items-center"
+                              onClick={async () => {
+                                if (isSubmitting) return;
+                                const finalTrackingId = await handleCtaClick(
+                                  item.id,
+                                );
+                                const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                window.open(
+                                  link,
+                                  '_blank',
+                                  'noopener,noreferrer',
+                                );
+                              }}
+                            >
+                              <img
+                                src={imageUrl}
+                                alt={item.title}
+                                className="max-w-full max-h-full object-contain mix-blend-multiply"
+                              />
+                            </div>
+                          </td>
+                          <td className="p-2 px-3 align-middle text-left border-r border-[#EBEBEB] text-[#555] w-[38%]">
+                            <div className="md:h-[48px] overflow-hidden flex items-center">
+                              <a
+                                className="cursor-pointer hover:underline text-sm md:text-[14px] leading-tight line-clamp-2 md:line-clamp-2"
+                                onClick={async () => {
+                                  if (isSubmitting) return;
+                                  const finalTrackingId = await handleCtaClick(
+                                    item.id,
+                                  );
+                                  const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                  window.open(
+                                    link,
+                                    '_blank',
+                                    'noopener,noreferrer',
+                                  );
+                                }}
+                              >
+                                {displayTitle}
+                              </a>
+                            </div>
+                          </td>
+                          {/* Rating */}
+                          <td className="p-2 align-middle border-r border-[#EBEBEB] w-[15%]">
+                            <span className="text-2xl md:text-[28px] text-[#757575] font-light leading-none">
+                              {rating}
+                            </span>
+                          </td>
+                          {/* CTA */}
+                          <td className="p-2 align-middle border-r border-[#EBEBEB]">
+                            <div className="relative w-[110px] md:w-[130px] mx-auto mt-2 mb-1">
+                              {discount && (
+                                <div className="absolute -top-2.5 -right-2 md:-top-3 md:-right-2 bg-[#EB8934] text-white text-[11px] md:text-[12px] font-extrabold px-2 md:px-2.5 py-0.5 rounded-full z-20 shadow-sm leading-none flex items-center justify-center border-[1.5px] border-white">
+                                  {discount.toString().includes('%')
+                                    ? discount
+                                    : `${discount}%`}
+                                </div>
+                              )}
+                              <div className="rounded-full bg-[#EB8934] p-[1.5px] md:p-[2px] shadow-sm">
+                                <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
+                                  <button
+                                    onClick={async () => {
+                                      if (isSubmitting) return;
+                                      const finalTrackingId =
+                                        await handleCtaClick(item.id);
+                                      const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                      window.open(
+                                        link,
+                                        '_blank',
+                                        'noopener,noreferrer',
+                                      );
+                                    }}
+                                    className={`w-full bg-[#5BC5A7] hover:bg-[#49a88e] text-white text-xs md:text-[13px] font-bold py-1.5 md:py-2 rounded-full transition-colors uppercase tracking-tight ${isSubmitting ? 'opacity-50' : ''}`}
+                                  >
+                                    REVISAR PRECIO
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-[11px] text-[#555] mt-1 text-center font-medium">
+                              em{' '}
+                              <span className="font-bold text-[#FF9900]">
+                                amazon
+                              </span>
+                              .es
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  : [1, 2, 3].map(i => (
+                      <tr key={i} className="border-b border-gray-200">
+                        <td colSpan={5} className="p-4">
+                          <SkeletonLoader className="h-10 w-full" />
+                        </td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+          </section>
+
+          {/* Remaining Text Paragraphs */}
+          {textRemainingParas.length > 0 && (
+            <div className="text-lg md:text-[19px] text-[#424242] leading-relaxed mb-10 space-y-6">
+              {textRemainingParas.map((para: string, idx: number) => (
+                <p key={idx}>{para}</p>
+              ))}
+            </div>
+          )}
+
+          {/* SubTitle */}
+          {pageData?.subTitle && (
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#333333] mb-6 leading-snug">
+              {pageData.subTitle}
+            </h2>
+          )}
+
+          {/* SubText & SubImage */}
+          <div className="clearfix text-lg md:text-[19px] text-[#424242] leading-relaxed space-y-6">
+            {pageData?.subImg?.url && (
+              <img
+                src={
+                  pageData.subImg?.formats?.medium?.url || pageData.subImg?.url
+                }
+                alt="Sub Hero"
+                className="float-none md:float-right md:w-[45%] w-full h-auto md:ml-6 mb-6 mt-2 object-cover"
+              />
+            )}
+            {subTextBlocks.map((para: string, idx: number) => (
+              <p key={idx}>{para}</p>
+            ))}
           </div>
         </div>
-      </div>
-      {/* Global styles for animations if needed */}
-      <style>{`
-        @keyframes shimmer {
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
+      </main>
     </div>
   );
 };
