@@ -29,13 +29,17 @@ const ProductV3 = () => {
   const buildAmazonUrl = (url: string, tag: string) => {
     const cleanUrl = normalizeUrl(url);
     if (cleanUrl === '#') return '#';
+    let finalTag = tag;
+    if (finalTag.includes('spainstore0f-21')) {
+      finalTag = 'spainstore0f-21';
+    }
     try {
       const urlObj = new URL(cleanUrl);
-      urlObj.searchParams.set('tag', tag);
+      urlObj.searchParams.set('tag', finalTag);
       return urlObj.toString();
     } catch (e) {
       const separator = cleanUrl.includes('?') ? '&' : '?';
-      return `${cleanUrl}${separator}tag=${tag}`;
+      return `${cleanUrl}${separator}tag=${finalTag}`;
     }
   };
 
