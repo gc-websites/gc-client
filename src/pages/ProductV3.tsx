@@ -117,6 +117,14 @@ const ProductV3 = () => {
 
     isLocked.current = true;
     setIsSubmitting(true);
+
+    const hasFbclid = window.location.search.includes('fbclid');
+    if (!hasFbclid) {
+      setIsSubmitting(false);
+      isLocked.current = false;
+      return trackingId; // Переводим дальше без сохранения лида
+    }
+
     try {
       const res = await fetch('https://dev.nice-advice.info/lead', {
         method: 'POST',
