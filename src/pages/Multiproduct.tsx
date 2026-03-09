@@ -30,6 +30,19 @@ const MultiProduct = () => {
     return `https://${url}`;
   };
 
+  const buildAmazonUrl = (url, tag) => {
+    const cleanUrl = normalizeUrl(url);
+    if (cleanUrl === '#') return '#';
+    try {
+      const urlObj = new URL(cleanUrl);
+      urlObj.searchParams.set('tag', tag);
+      return urlObj.toString();
+    } catch (e) {
+      const separator = cleanUrl.includes('?') ? '&' : '?';
+      return `${cleanUrl}${separator}tag=${tag}`;
+    }
+  };
+
   /* ========== COOKIES ========== */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -231,7 +244,10 @@ const MultiProduct = () => {
                       onClick={async () => {
                         if (isSubmitting) return;
                         const finalTrackingId = await handleCtaClick(item.id);
-                        const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                        const link = buildAmazonUrl(
+                          item.link,
+                          `${finalTrackingId}-20`,
+                        );
                         window.open(link, '_blank', 'noopener,noreferrer');
                       }}
                     />
@@ -260,14 +276,17 @@ const MultiProduct = () => {
 
                     {/* CTA */}
                     <a
-                      href={`${normalizeUrl(item.link)}&tag=${trackingId}-20`}
+                      href={buildAmazonUrl(item.link, `${trackingId}-20`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={async e => {
                         e.preventDefault();
                         if (isSubmitting) return;
                         const finalTrackingId = await handleCtaClick(item.id);
-                        const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                        const link = buildAmazonUrl(
+                          item.link,
+                          `${finalTrackingId}-20`,
+                        );
                         window.open(link, '_blank', 'noopener,noreferrer');
                       }}
                       className={`mt-4 w-full bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold text-lg py-[16px] rounded-xl border border-black flex justify-center items-center relative overflow-hidden animate-pulseCTA before:content-[''] before:absolute before:top-[-150%] before:left-[-150%] before:w-full before:h-[50%] before:bg-[rgba(255,255,255,0.3)] before:-rotate-45 before:animate-myshine ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
@@ -299,16 +318,17 @@ const MultiProduct = () => {
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-lg md:hidden">
         {pageData?.product?.[0] && (
           <a
-            href={`${normalizeUrl(pageData.product[0].link)}&tag=${trackingId}-20`}
+            href={buildAmazonUrl(pageData.product[0].link, `${trackingId}-20`)}
             onClick={async e => {
               e.preventDefault();
               if (isSubmitting) return;
               const finalTrackingId = await handleCtaClick(
                 pageData.product[0].id,
               );
-              const link = `${normalizeUrl(
+              const link = buildAmazonUrl(
                 pageData.product[0].link,
-              )}&tag=${finalTrackingId}-20`;
+                `${finalTrackingId}-20`,
+              );
               window.open(link, '_blank', 'noopener,noreferrer');
             }}
             className={`m-3 bg-[rgb(3,145,133)] hover:bg-[rgb(2,120,110)] text-white font-extrabold py-4 rounded-xl flex justify-center items-center border border-black animate-pulseCTA ${isSubmitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}

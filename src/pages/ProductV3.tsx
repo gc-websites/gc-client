@@ -26,6 +26,19 @@ const ProductV3 = () => {
     return `https://${url}`;
   };
 
+  const buildAmazonUrl = (url: string, tag: string) => {
+    const cleanUrl = normalizeUrl(url);
+    if (cleanUrl === '#') return '#';
+    try {
+      const urlObj = new URL(cleanUrl);
+      urlObj.searchParams.set('tag', tag);
+      return urlObj.toString();
+    } catch (e) {
+      const separator = cleanUrl.includes('?') ? '&' : '?';
+      return `${cleanUrl}${separator}tag=${tag}`;
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get('fbclid');
@@ -263,7 +276,10 @@ const ProductV3 = () => {
                             const finalTrackingId = await handleCtaClick(
                               item.id,
                             );
-                            const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                            const link = buildAmazonUrl(
+                              item.link,
+                              `${finalTrackingId}-20`,
+                            );
                             window.open(link, '_blank', 'noopener,noreferrer');
                           }}
                         >
@@ -282,7 +298,10 @@ const ProductV3 = () => {
                             const finalTrackingId = await handleCtaClick(
                               item.id,
                             );
-                            const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                            const link = buildAmazonUrl(
+                              item.link,
+                              `${finalTrackingId}-20`,
+                            );
                             window.open(link, '_blank', 'noopener,noreferrer');
                           }}
                         >
@@ -319,7 +338,10 @@ const ProductV3 = () => {
                                     if (isSubmitting) return;
                                     const finalTrackingId =
                                       await handleCtaClick(item.id);
-                                    const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                    const link = buildAmazonUrl(
+                                      item.link,
+                                      `${finalTrackingId}-20`,
+                                    );
                                     window.open(
                                       link,
                                       '_blank',
@@ -405,7 +427,10 @@ const ProductV3 = () => {
                                 const finalTrackingId = await handleCtaClick(
                                   item.id,
                                 );
-                                const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                const link = buildAmazonUrl(
+                                  item.link,
+                                  `${finalTrackingId}-20`,
+                                );
                                 window.open(
                                   link,
                                   '_blank',
@@ -429,7 +454,10 @@ const ProductV3 = () => {
                                   const finalTrackingId = await handleCtaClick(
                                     item.id,
                                   );
-                                  const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                  const link = buildAmazonUrl(
+                                    item.link,
+                                    `${finalTrackingId}-20`,
+                                  );
                                   window.open(
                                     link,
                                     '_blank',
@@ -464,7 +492,10 @@ const ProductV3 = () => {
                                       if (isSubmitting) return;
                                       const finalTrackingId =
                                         await handleCtaClick(item.id);
-                                      const link = `${normalizeUrl(item.link)}&tag=${finalTrackingId}-20`;
+                                      const link = buildAmazonUrl(
+                                        item.link,
+                                        `${finalTrackingId}-20`,
+                                      );
                                       window.open(
                                         link,
                                         '_blank',

@@ -36,6 +36,19 @@ const ProductV2 = () => {
   const [isNotFound, setIsNotFound] = useState(false);
   const isLocked = useRef(false);
 
+  const buildAmazonUrl = (url: string | undefined, tag: string) => {
+    if (!url) return '#';
+    const cleanUrl = url.startsWith('http') ? url : `https://${url}`;
+    try {
+      const urlObj = new URL(cleanUrl);
+      urlObj.searchParams.set('tag', tag);
+      return urlObj.toString();
+    } catch (e) {
+      const separator = cleanUrl.includes('?') ? '&' : '?';
+      return `${cleanUrl}${separator}tag=${tag}`;
+    }
+  };
+
   // Calculate seconds until next midnight
   const getSecondsUntilMidnight = () => {
     const now = new Date();
@@ -280,7 +293,10 @@ const ProductV2 = () => {
                     if (isSubmitting) return;
                     const finalTrackingId = await handleCtaClick();
                     window.open(
-                      `${productData?.link}&tag=${finalTrackingId}-20`,
+                      buildAmazonUrl(
+                        productData?.link,
+                        `${finalTrackingId}-20`,
+                      ),
                       '_blank',
                     );
                   }}
@@ -315,7 +331,10 @@ const ProductV2 = () => {
                     if (isSubmitting) return;
                     const finalTrackingId = await handleCtaClick();
                     window.open(
-                      `${productData?.link}&tag=${finalTrackingId}-20`,
+                      buildAmazonUrl(
+                        productData?.link,
+                        `${finalTrackingId}-20`,
+                      ),
                       '_blank',
                     );
                   }}
@@ -414,13 +433,13 @@ const ProductV2 = () => {
             <SkeletonLoader className="w-full h-14 mb-6 mt-4" />
           ) : (
             <a
-              href={`${productData?.link}&tag=${trackingId}-20`}
+              href={buildAmazonUrl(productData?.link, `${trackingId}-20`)}
               onClick={async e => {
                 e.preventDefault();
                 if (isSubmitting) return;
                 const finalTrackingId = await handleCtaClick();
                 window.open(
-                  `${productData?.link}&tag=${finalTrackingId}-20`,
+                  buildAmazonUrl(productData?.link, `${finalTrackingId}-20`),
                   '_blank',
                 );
               }}
