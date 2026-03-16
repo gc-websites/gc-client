@@ -9,6 +9,7 @@ interface ProductData {
   descriptionfield2?: string;
   descriptionfield3?: string;
   descriptionfield4?: string;
+  link?: string;
 }
 
 const TemuProduct = () => {
@@ -19,7 +20,7 @@ const TemuProduct = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotFound, setIsNotFound] = useState(false);
 
-  const TEMU_LINK = 'https://temu.to/k/ppbbwjampjt';
+  const TEMU_LINK = productData?.link || 'https://temu.to/k/ppbbwjampjt';
 
   useEffect(() => {
     fetch(`https://dev.nice-advice.info/get-product-temu/${id}`, {
